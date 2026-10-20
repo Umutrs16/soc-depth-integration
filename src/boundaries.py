@@ -1,8 +1,9 @@
-"""Official GS（2024）0650 administrative boundaries.
+"""Official GS (2024) 0650 administrative boundaries.
 
 Polygons supply land area, province assignment, and fill masks.
-The companion line layer (境界线) is drawn on every national map so the
+The companion boundary-line layer is drawn on every national map so the
 approved boundary, including the South China Sea segments, is visible.
+The map review number is not drawn on the figure.
 """
 
 from __future__ import annotations
@@ -111,7 +112,7 @@ def load_counties() -> gpd.GeoDataFrame:
 
 
 def official_bounds():
-    """Longitude/latitude bounds covering polygons and 境界线."""
+    """Longitude/latitude bounds covering polygons and the boundary-line layer."""
     poly = load_provinces().total_bounds
     line = load_province_lines().total_bounds
     return (
@@ -175,23 +176,27 @@ def add_review_number(ax, x: float = 0.01, y: float = 0.01) -> None:
     )
 
 
-def add_scale_bar(ax, length_m: float = 500_000, label: str = "500 km") -> None:
+def add_scale_bar(ax, length_m: float = 500_000, label: str = "500 km", x_frac: float = 0.06, y_frac: float = 0.06) -> None:
     x0, x1 = ax.get_xlim()
     y0, y1 = ax.get_ylim()
-    x = x0 + 0.06 * (x1 - x0)
-    y = y0 + 0.06 * (y1 - y0)
+    x = x0 + x_frac * (x1 - x0)
+    y = y0 + y_frac * (y1 - y0)
     ax.plot([x, x + length_m], [y, y], color="black", lw=1.4, solid_capstyle="butt", zorder=10)
     ax.plot([x, x], [y - 8_000, y + 8_000], color="black", lw=1.0, zorder=10)
     ax.plot([x + length_m, x + length_m], [y - 8_000, y + 8_000], color="black", lw=1.0, zorder=10)
     ax.text(x + length_m / 2, y + 18_000, label, ha="center", va="bottom", fontsize=7, zorder=10)
 
 
-def add_north_arrow(ax) -> None:
+def add_north_arrow(ax, loc: str = "lower right", x_frac: float | None = None, y_frac: float | None = None, dy_frac: float = 0.07) -> None:
     x0, x1 = ax.get_xlim()
     y0, y1 = ax.get_ylim()
-    x = x1 - 0.08 * (x1 - x0)
-    y = y0 + 0.16 * (y1 - y0)
-    dy = 0.07 * (y1 - y0)
+    if x_frac is None:
+        x_frac = 0.92
+    if y_frac is None:
+        y_frac = 0.84 if loc == "upper right" else 0.16
+    x = x0 + x_frac * (x1 - x0)
+    y = y0 + y_frac * (y1 - y0)
+    dy = dy_frac * (y1 - y0)
     ax.add_patch(
         FancyArrowPatch(
             (x, y),
@@ -207,7 +212,7 @@ def add_north_arrow(ax) -> None:
 
 
 def draw_official_boundaries(ax, provinces=None, lines=None, edgecolor="#222222", linewidth=0.25) -> None:
-    """Draw official province fill edges and the 境界线 layer."""
+    """Draw official province fill edges and the boundary-line layer."""
     use_map_font()
     if provinces is None:
         provinces = load_provinces()
@@ -218,7 +223,7 @@ def draw_official_boundaries(ax, provinces=None, lines=None, edgecolor="#222222"
 
 
 def set_official_extent(ax, extra: gpd.GeoDataFrame | None = None, pad_frac: float = 0.02) -> None:
-    """Extent must include both polygons and 境界线."""
+    """Extent must include both polygons and the boundary-line layer."""
     parts = [load_provinces().to_crs(CHINA_ALBERS), load_province_lines().to_crs(CHINA_ALBERS)]
     if extra is not None and len(extra):
         layer = extra if extra.crs is not None and extra.crs.to_string() == CHINA_ALBERS else extra.to_crs(CHINA_ALBERS)
@@ -235,7 +240,7 @@ def set_official_extent(ax, extra: gpd.GeoDataFrame | None = None, pad_frac: flo
 
 
 def locator_inset(fig, bounds_geom=None, rect=(0.62, 0.14, 0.22, 0.22)):
-    """Small national locator that still shows 境界线 and the review number."""
+    """Small national locator. The review number is not drawn here."""
     ax = fig.add_axes(list(rect))
     provinces = load_provinces().to_crs(CHINA_ALBERS)
     lines = load_province_lines().to_crs(CHINA_ALBERS)
@@ -246,7 +251,6 @@ def locator_inset(fig, bounds_geom=None, rect=(0.62, 0.14, 0.22, 0.22)):
             ax=ax, color="#b2182b", linewidth=0.8
         )
     set_official_extent(ax, pad_frac=0.01)
-    add_review_number(ax, x=0.02, y=0.02)
     ax.set_title(" ", fontsize=1)
     return ax
 

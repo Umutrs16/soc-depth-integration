@@ -1,8 +1,9 @@
 """Project paths and map-review constants.
 
-All published maps use the standard administrative boundaries carrying
-审图号 GS（2024）0650号. No other national, provincial, or coastline
-dataset is a geometry source.
+All published maps use the standard administrative boundaries with
+map review number GS (2024) 0650. No other national, provincial, or coastline
+dataset is a geometry source. The review number is stated in the caption
+and is not drawn on the map.
 """
 
 from __future__ import annotations
@@ -25,8 +26,8 @@ RASTERS = OUT / "rasters"
 MANIFESTS = OUT / "manifests"
 
 GEE_PROJECT = "hallowed-chain-458005-g9"
-MAP_REVIEW_ID = "GS（2024）0650号"
-MAP_REVIEW_LABEL = "审图号：GS（2024）0650号"
+MAP_REVIEW_ID = "GS (2024) 0650"
+MAP_REVIEW_LABEL = "Map review number GS (2024) 0650"
 
 # China Albers equal-area on the WGS84 datum of the official shapefiles.
 CHINA_ALBERS = (

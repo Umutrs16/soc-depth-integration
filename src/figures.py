@@ -1,6 +1,7 @@
 """Result figures revised after review.
 
-Geographic panels use GS（2024）0650 province polygons and the 境界线 layer.
+Geographic panels use the GS (2024) 0650 province polygons and boundary lines.
+The map review number is not drawn on the figure.
 """
 
 from __future__ import annotations
@@ -17,7 +18,6 @@ from pyproj import Transformer
 
 from .boundaries import (
     add_north_arrow,
-    add_review_number,
     add_scale_bar,
     draw_official_boundaries,
     load_province_lines,
@@ -66,7 +66,6 @@ def figure_profiles() -> None:
     use_map_font()
     profiles = pd.read_parquet(PROCESSED / "profiles_qc.parquet")
     depth = profiles["depth_max_cm"].to_numpy()
-    n_above = int(np.sum(depth > 200))
     fig = plt.figure(figsize=(9.4, 6.6))
     ax = fig.add_axes([0.005, 0.04, 0.58, 0.90])
     cax = fig.add_axes([0.595, 0.50, 0.012, 0.36])
@@ -78,20 +77,22 @@ def figure_profiles() -> None:
     sc = ax.scatter(x, y, c=np.clip(depth, 0, 200), s=7, cmap="cividis", linewidths=0, alpha=0.45, vmin=0, vmax=200, zorder=3)
     draw_official_boundaries(ax, provinces=load_provinces(), linewidth=0.45)
     set_official_extent(ax)
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
+    ax.set_ylim(y0, y1 + 0.14 * (y1 - y0))
     add_scale_bar(ax)
-    add_north_arrow(ax)
-    add_review_number(ax)
+    add_north_arrow(ax, x_frac=0.96, y_frac=0.90, dy_frac=0.045)
     cbar = fig.colorbar(sc, cax=cax)
     cbar.set_label("Depth (cm)", fontsize=10)
     cbar.ax.tick_params(labelsize=9)
-    ax.set_title("(a) Profile locations", fontsize=11)
+    ax.set_title("(a)", fontsize=12, loc="left")
     order = np.sort(depth)
     axh.plot(order, np.arange(1, len(order) + 1), color="#3b4cc0", lw=1.6)
     axh.axvline(200, color="black", lw=0.8, ls="--")
     axh.set_xlabel("Maximum depth (cm)", fontsize=13, labelpad=2)
     axh.set_ylabel("Cumulative profiles", fontsize=13)
     axh.tick_params(labelsize=12)
-    axh.set_title(f"(b) Colour and this curve stop at 200 cm\n{n_above} profiles are deeper", fontsize=12)
+    axh.set_title("(b)", fontsize=12, loc="left")
     coverage = TABLES / "round11_coverage_profiles.csv"
     if coverage.exists():
         flags = pd.read_csv(coverage)
@@ -113,7 +114,7 @@ def figure_profiles() -> None:
     axb.barh(labels[::-1], values[::-1], color="#8c8c8c")
     axb.set_xlabel("Profiles", fontsize=13)
     axb.tick_params(labelsize=12)
-    axb.set_title("(c) Continuous cover", fontsize=12, pad=2)
+    axb.set_title("(c)", fontsize=12, loc="left", pad=2)
     for i, val in enumerate(values[::-1]):
         axb.text(val + 40, i, str(val), va="center", fontsize=12)
     _save(fig, "fig01_profiles")
@@ -138,7 +139,7 @@ def figure_workflow() -> None:
     _box(ax, 0.08, 0.06, 0.38, 0.16, "Primary model is the integral\nextra penalties are ablations\npaired block bootstrap of saved errors", "#fce5cd")
     _box(ax, 0.54, 0.06, 0.38, 0.16, "Residual quantiles, not a national interval\n0.10° × 0.11° fixed-depth sum\nno thickness or gravel scenario", "#fce5cd")
     _arrow(ax, 0.47, 0.62, 0.53, 0.62)
-    ax.set_title("Workflow, sample sizes, and what was not claimed")
+    ax.set_axis_off()
     _save(fig, "fig02_workflow")
 
 
@@ -179,7 +180,6 @@ def figure_architecture() -> None:
         _arrow(ax, 0.50, 0.78, 0.50, 0.70)
         _arrow(ax, 0.50, 0.54, 0.50, 0.46)
         ax.set_title(title, fontsize=10)
-    fig.suptitle("Three representations of the same layer stocks", fontsize=11)
     fig.tight_layout()
     _save(fig, "fig03_architecture")
 
@@ -219,7 +219,6 @@ def figure_profiles_curves() -> None:
     axes[0].plot([], [], color="#2166ac", lw=1.4, label="Predicted layer mean")
     axes[0].plot([], [], color="#b2182b", lw=4, label="Observed layer mean", solid_capstyle="butt")
     axes[0].legend(fontsize=10, frameon=False, loc="lower right")
-    fig.suptitle("Depth increases downward. Bars are layer means, not point samples of q.", fontsize=12)
     fig.tight_layout()
     _save(fig, "fig04_profile_curves")
 
@@ -244,8 +243,7 @@ def figure_model_comparison() -> None:
     axes[0].set_xlabel("Fold index as stored (0–4)", fontsize=12)
     axes[0].set_ylabel("0–100 cm MAE (kg m$^{-2}$)", fontsize=12)
     axes[0].tick_params(labelsize=11)
-    axes[0].legend(frameon=False, fontsize=10)
-    axes[0].set_title("Five spatial folds; mean test n = 642", fontsize=12)
+    axes[0].legend(frameon=False, fontsize=10, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=3)
     wanted = [
         ("stock_0_100", "xgb", "0–100 cm, XGBoost"),
         ("stock_0_100", "hgb", "0–100 cm, hist. boosting"),
@@ -290,9 +288,9 @@ def figure_model_comparison() -> None:
     axes[1].set_yticklabels(labels, fontsize=13)
     axes[1].tick_params(labelsize=11)
     axes[1].set_xlabel("Named MAE − primary MAE (kg m$^{-2}$)", fontsize=12)
-    axes[1].set_title("Square: planned. Circles: exploratory.\nTuned-forest interval includes zero.", fontsize=11)
-    axes[1].legend(frameon=False, fontsize=12)
+    axes[1].legend(frameon=False, fontsize=11, loc="lower center", bbox_to_anchor=(0.55, 1.02), ncol=2)
     fig.tight_layout()
+    fig.subplots_adjust(bottom=0.24, top=0.86)
     _save(fig, "fig06_model_comparison")
 
 
@@ -344,7 +342,7 @@ def figure_ablation_calibration() -> None:
     axes[0].set_yticklabels(labels, fontsize=11)
     axes[0].tick_params(labelsize=11)
     axes[0].set_xlabel("Other MAE − primary MAE\n(kg m$^{-2}$)", fontsize=11)
-    axes[0].set_title("Exploratory. Filled excludes zero.", fontsize=11)
+    axes[0].set_title("(a)", fontsize=12, loc="left")
     rebuilt = METRICS / "round12_intervals.json"
     width = axes[1].twinx()
     if rebuilt.exists():
@@ -357,7 +355,7 @@ def figure_ablation_calibration() -> None:
         axes[1].set_xticks(pred["decile"])
         axes[1].set_xticklabels([str(int(d)) for d in pred["decile"]], fontsize=11)
         axes[1].set_xlabel("Decile (n = 321). 1 is lowest.", fontsize=11)
-        axes[1].set_title("Squares: target, post hoc.", fontsize=11)
+        axes[1].set_title("(b)", fontsize=12, loc="left")
     else:
         payload = json.loads((METRICS / "round6_scaled_intervals.json").read_text(encoding="utf-8"))
         dec = pd.DataFrame(payload["deciles"])
@@ -368,7 +366,7 @@ def figure_ablation_calibration() -> None:
         axes[1].set_xticks(dec["predicted_decile"])
         axes[1].set_xticklabels([f"{int(d)}\nn={int(n)}" for d, n in zip(dec["predicted_decile"], dec["n"])], fontsize=8)
         axes[1].set_xlabel("Decile of the predicted 0–100 cm stock", fontsize=8)
-        axes[1].set_title("Archived predicted-decile diagnostic", fontsize=9)
+        axes[1].set_title("(b)", fontsize=12, loc="left")
     axes[1].axhline(0.90, color="black", lw=0.8, ls=":", label="Nominal 90%")
     axes[1].set_ylim(0.45, 1.02)
     width.set_ylim(0, 40)
@@ -425,14 +423,12 @@ def figure_national_maps() -> None:
         mesh = ax.pcolormesh(x, y, np.ma.masked_invalid(inside), cmap=cmap, norm=norm, shading="auto")
         draw_official_boundaries(ax)
         set_official_extent(ax)
-        add_review_number(ax)
-        ax.set_title(title, fontsize=9)
+        ax.set_title(title, fontsize=11, loc="left")
         cbar = fig.colorbar(mesh, ax=ax, fraction=0.046, pad=0.02, ticks=edges)
         cbar.ax.tick_params(labelsize=8)
         cbar.set_label("kg m$^{-2}$", fontsize=8)
     add_scale_bar(axes[1])
     add_north_arrow(axes[1])
-    fig.suptitle("Exploratory fixed-depth sums. Breaks differ by depth. Grey land is outside the area of applicability.", fontsize=10)
     fig.tight_layout()
     _save(fig, "fig05_national_socd")
 
@@ -467,13 +463,12 @@ def figure_xinjiang() -> None:
     minx, miny, maxx, maxy = xj_albers.total_bounds
     pad_x, pad_y = 0.03 * (maxx - minx), 0.04 * (maxy - miny)
     ax_map.set_xlim(minx - pad_x, maxx + pad_x)
-    ax_map.set_ylim(miny - pad_y, maxy + pad_y)
+    ax_map.set_ylim(miny - 3.2 * pad_y, maxy + pad_y)
     ax_map.set_aspect("equal")
     ax_map.set_axis_off()
-    ax_map.set_title("(a) Xinjiang residual", fontsize=10)
-    add_scale_bar(ax_map, length_m=400_000, label="400 km")
-    add_north_arrow(ax_map)
-    add_review_number(ax_map, x=0.34, y=0.02)
+    ax_map.set_title("(a)", fontsize=12, loc="left")
+    add_scale_bar(ax_map, length_m=400_000, label="400 km", y_frac=0.025)
+    add_north_arrow(ax_map, loc="upper right")
     inset = ax_map.inset_axes([0.02, 0.58, 0.34, 0.38])
     provinces.plot(ax=inset, color="#f4f4f4", edgecolor="#4d4d4d", linewidth=0.45)
     lines.plot(ax=inset, color="black", linewidth=0.55)
@@ -481,8 +476,8 @@ def figure_xinjiang() -> None:
     set_official_extent(inset, pad_frac=0.01)
     inset.set_title(" ", fontsize=1)
     cbar = fig.colorbar(sc, cax=cax, orientation="horizontal")
-    cbar.set_label("Predicted − observed (kg m$^{-2}$)", fontsize=10)
-    cbar.ax.tick_params(labelsize=9)
+    cbar.set_label("Predicted − observed (kg m$^{-2}$)", fontsize=11)
+    cbar.ax.tick_params(labelsize=11)
     finite_all = err[np.isfinite(err)]
     fig.text(
         0.24,
@@ -503,7 +498,7 @@ def figure_xinjiang() -> None:
     ax_full.set_ylim(0, lim)
     ax_full.set_xlabel("0–100 cm target (kg m$^{-2}$)", fontsize=11)
     ax_full.set_ylabel("Predicted (kg m$^{-2}$)", fontsize=11)
-    ax_full.set_title(f"(b) All {len(finite)} profiles", fontsize=10)
+    ax_full.set_title("(b)", fontsize=12, loc="left")
     ax_full.tick_params(labelsize=8)
     ax_full.legend(frameon=False, fontsize=7)
     peak = finite.loc[finite["y100"].idxmax()]
@@ -525,7 +520,7 @@ def figure_xinjiang() -> None:
     ax_zoom.set_ylim(0, upper)
     ax_zoom.set_xlabel("0–100 cm target (kg m$^{-2}$)", fontsize=11)
     ax_zoom.set_ylabel("Predicted (kg m$^{-2}$)", fontsize=11)
-    ax_zoom.set_title("(c) Observed stock ≤ 40 kg m$^{-2}$", fontsize=10)
+    ax_zoom.set_title("(c)", fontsize=12, loc="left")
     ax_zoom.tick_params(labelsize=8)
     ax_zoom.legend(frameon=False, fontsize=7)
     _save(fig, "fig08_xinjiang")
@@ -582,7 +577,6 @@ def _draw_synthetic(part, pid, layer_edges, truths, designs, figsize, filename: 
             axes[row, col].set_xlim(0, xmax * 1.08 if xmax > 0 else 1)
     handles, texts = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles[:3], texts[:3], loc="lower center", ncol=3, frameon=False, fontsize=9)
-    fig.suptitle(f"Synthetic profile {pid}, noise 0.15, seed 42. Black is the known curve. Not a field profile.", fontsize=10)
     fig.tight_layout(rect=(0, 0.06, 1, 1))
     _save(fig, filename)
 
@@ -635,7 +629,6 @@ def figure_linked() -> None:
                 ax.set_ylabel(f"Depth (cm)\n{name}", fontsize=12)
     handles, texts = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles[:3], texts[:3], loc="lower center", ncol=3, frameon=False, fontsize=11)
-    fig.suptitle(f"Covariate-linked profile {pid}, noise 0.15, seed 42. Not a field profile.", fontsize=10)
     fig.tight_layout(rect=(0, 0.05, 1, 1))
     _save(fig, "fig15_linked")
 
@@ -654,7 +647,6 @@ def _figure_gap(audit: dict) -> None:
     ax.set_xticklabels([str(n) for n in orders])
     ax.set_xlabel("Gauss–Legendre points")
     ax.set_ylabel("|S(0,100) − S(0,30) − S(30,100)| (kg m$^{-2}$)")
-    ax.set_title("Same eight-frequency q, not a retrained model")
     ax.legend(frameon=False, fontsize=8)
     fig.tight_layout()
     _save(fig, "fig12_quadrature_gap")
@@ -671,7 +663,7 @@ def figure_nullspace() -> None:
         floor = float(np.min(q[mask]))
         h[mask] = 0.65 * floor * np.sin(2.0 * np.pi * (z[mask] - top) / (bottom - top))
     q2 = q + h
-    fig, axes = plt.subplots(1, 3, figsize=(8.8, 3.8), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(10.2, 4.2), sharey=True)
     panels = (
         (q, "Known q(z)", "#2166ac"),
         (h, "Perturbation with zero layer integrals", "#762a83"),
@@ -682,18 +674,10 @@ def figure_nullspace() -> None:
         for top, bottom in bounds:
             ax.axhline(bottom, color="#4d4d4d", lw=1.15)
         ax.set_ylim(100, 0)
-        ax.set_title(title, fontsize=9)
-        ax.set_xlabel("kg m$^{-2}$ cm$^{-1}$", fontsize=8)
-        ax.tick_params(labelsize=8)
+        ax.set_title(("(a)", "(b)", "(c)")[list(axes).index(ax)], fontsize=12, loc="left")
+        ax.set_xlabel("kg m$^{-2}$ cm$^{-1}$", fontsize=10)
+        ax.tick_params(labelsize=10)
     axes[0].set_ylabel("Depth (cm)")
-    gaps = []
-    for top, bottom in bounds:
-        mask = (z >= top) & (z <= bottom)
-        gaps.append(abs(float(np.trapezoid(q2[mask], z[mask]) - np.trapezoid(q[mask], z[mask]))))
-    fig.suptitle(
-        "Layer integrals of h are equal (largest gap {:.1e}). Grey lines are those boundaries. Not a measured profile.".format(max(gaps)),
-        fontsize=10,
-    )
     fig.tight_layout()
     _save(fig, "fig13_nullspace")
 
@@ -736,17 +720,13 @@ def figure_quadrature() -> None:
             ax.axhline(z_obs, color="#666666", lw=0.8, ls="-")
             ax.set_ylim(200, 0)
             ax.set_xlim(left=0)
-            ax.set_title(f"Profile {pid}, {len(part)} layers, last sample {z_obs:.0f} cm", fontsize=11)
+            ax.set_title(f"Profile {pid}", fontsize=11)
             ax.tick_params(labelsize=10)
             ax.set_xlabel("kg m$^{-2}$ cm$^{-1}$", fontsize=11)
         axes[0, 0].set_ylabel("Depth (cm)", fontsize=11)
         axes[1, 0].set_ylabel("Depth (cm)", fontsize=11)
         handles, texts = axes[0, 0].get_legend_handles_labels()
         fig.legend(handles, texts, loc="lower center", ncol=3, frameon=False, fontsize=11)
-        fig.suptitle(
-            "Within the sampled depth: solid, dash-dot, and dotted. Below the last layer: dashed. Grey marks that depth.",
-            fontsize=10,
-        )
         fig.tight_layout(rect=(0, 0.04, 1, 1))
         _save(fig, "fig11_quadrature")
         _figure_gap(audit)
@@ -812,7 +792,7 @@ def figure_distance() -> None:
     axes[0].tick_params(labelsize=11)
     axes[0].set_ylim(3.8, 6.3)
     axes[0].legend(frameon=False, fontsize=11)
-    axes[0].set_title("Post hoc strata, same 2° predictions", fontsize=12)
+    axes[0].set_title("(a)", fontsize=12, loc="left")
     means = [paired[b]["mean_rf_minus_mcu"] for b in order]
     lo = [paired[b]["mean_rf_minus_mcu"] - paired[b]["ci95_low"] for b in order]
     hi = [paired[b]["ci95_high"] - paired[b]["mean_rf_minus_mcu"] for b in order]
@@ -822,8 +802,7 @@ def figure_distance() -> None:
     axes[1].set_xticklabels(order, fontsize=11)
     axes[1].set_ylabel("Random forest MAE − primary MAE", fontsize=12)
     axes[1].tick_params(labelsize=11)
-    axes[1].set_title("95% interval; not a buffer test", fontsize=12)
-    fig.suptitle("Neighbouring blocks were not removed", fontsize=10)
+    axes[1].set_title("(b)", fontsize=12, loc="left")
     fig.tight_layout()
     _save(fig, "fig09_distance")
 
@@ -860,11 +839,9 @@ def figure_profile_density() -> None:
     )
     draw_official_boundaries(ax)
     set_official_extent(ax)
-    add_review_number(ax)
     cbar = fig.colorbar(mesh, ax=ax, fraction=0.04, pad=0.01, ticks=edges)
-    cbar.set_label("Profiles per 10$^{4}$ km$^{2}$", fontsize=8)
-    cbar.ax.tick_params(labelsize=8)
-    ax.set_title("100 km equal-area cells. Empty cells are not drawn as zero.", fontsize=9)
+    cbar.set_label("Profiles per 10$^{4}$ km$^{2}$", fontsize=10)
+    cbar.ax.tick_params(labelsize=10)
     fig.tight_layout()
     _save(fig, "fig10_profile_density")
 
@@ -911,10 +888,6 @@ def figure_layer_recovery() -> None:
         unit = "" if "Relative" in ylabel or "Peak" in ylabel else " (kg m$^{-2}$)"
         ax.set_ylabel(ylabel + unit, fontsize=9)
     axes[0, 0].legend(frameon=False, fontsize=9)
-    fig.suptitle(
-        f"Width 12 cm, noise 0.15, n = {n_test}, {n_seeds} seeds. Band is the seed range, not a bootstrap interval.",
-        fontsize=10,
-    )
     fig.tight_layout()
     _save(fig, "fig16_layer_recovery")
 
@@ -967,7 +940,6 @@ def figure_peak_geometry() -> None:
     axes[1, 1].set_ylim(-0.02, 1.05)
     handles, texts = axes[0, 0].get_legend_handles_labels()
     fig.legend(handles, texts, loc="lower center", ncol=3, frameon=False, fontsize=11)
-    fig.suptitle("Synthetic peak geometry, noise 0.15, n = 200, 3 seeds. Not a sampling rule.", fontsize=10)
     fig.tight_layout(rect=(0, 0.06, 1, 1))
     _save(fig, "fig17_peak_geometry")
 

@@ -8,9 +8,12 @@ From this directory:
 
 ```bash
 python -m src.report_archived_scores
+python -m src.report_block_interval
 ```
 
-The script reads the archived out-of-fold predictions and the union-coverage table. It keeps the 3,210 profiles whose recorded layers cover 0–100 cm and prints the primary-model error and the archived random-forest error. It does not train a model.
+`report_archived_scores` reads the archived out-of-fold predictions and the union-coverage table. It keeps the 3,210 profiles whose recorded layers cover 0–100 cm and prints the primary-model error and the archived random-forest error. It does not train a model.
+
+`report_block_interval` replays the seed-11 block bootstrap (2,000 draws; the sampling unit is the spatial block) and checks the paired intervals against the archived coverage file. See `verification.md` for what can be recomputed, what needs the source tables, and what cannot be reproduced bit for bit.
 
 The planned comparison uses those archived random-forest predictions. `outputs/tables/round12_interval_profiles.csv` is a later calibration refit. Every row has `is_planned_contrast` set to false. Its random-forest column does not reproduce the archived forest and must not be used to recompute the paired difference.
 
