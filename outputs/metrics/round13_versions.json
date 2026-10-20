@@ -1,0 +1,26 @@
+{
+  "label": "interval rasters rewritten as mean plus union-valid residual quantiles; mean rasters and national sums were not recomputed",
+  "depths": {
+    "30": {
+      "archived_q05": -2.356471300125122,
+      "archived_q95": 5.854221343994141,
+      "archived_width": 8.210692405700684,
+      "union_valid_q05": -2.3690036763509115,
+      "union_valid_q95": 5.8839501073234945,
+      "union_valid_width": 8.252953783674407,
+      "mean_raster_unchanged": true,
+      "lower_and_upper_not_summed": true
+    },
+    "100": {
+      "archived_q05": -4.772279262542725,
+      "archived_q95": 11.075885772705078,
+      "archived_width": 15.848165512084961,
+      "union_valid_q05": -4.773122800161674,
+      "union_valid_q95": 11.079017415046689,
+      "union_valid_width": 15.852140215208362,
+      "mean_raster_unchanged": true,
+      "lower_and_upper_not_summed": true
+    }
+  },
+  "round12_intervals": "calibration_refit only. The random-forest column is not the archived forest used in Table 4. is_planned_contrast is false for every row."
+}

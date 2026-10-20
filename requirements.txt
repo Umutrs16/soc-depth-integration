@@ -1,0 +1,14 @@
+pandas>=2.2
+numpy>=2.0
+pyarrow>=15
+scikit-learn>=1.5
+xgboost>=2.0
+torch>=2.2
+earthengine-api>=1.5
+geopandas>=1.0
+rasterio>=1.4
+pyproj>=3.6
+matplotlib>=3.8
+pyyaml>=6.0
+requests>=2.31
+scipy>=1.11
