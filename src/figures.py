@@ -83,7 +83,7 @@ def figure_profiles() -> None:
     add_scale_bar(ax)
     add_north_arrow(ax, x_frac=0.96, y_frac=0.90, dy_frac=0.045)
     cbar = fig.colorbar(sc, cax=cax)
-    cbar.set_label("Depth (cm)", fontsize=10)
+    cbar.set_label("Maximum depth (cm)\ncapped at 200", fontsize=10)
     cbar.ax.tick_params(labelsize=9)
     ax.set_title("(a)", fontsize=12, loc="left")
     order = np.sort(depth)
@@ -296,7 +296,7 @@ def figure_model_comparison() -> None:
 
 def figure_ablation_calibration() -> None:
     use_map_font()
-    fig, axes = plt.subplots(1, 2, figsize=(8.8, 4.2))
+    fig, axes = plt.subplots(1, 3, figsize=(10.4, 4.4))
     lookup = {(r["target"], r["baseline"]): r for r in _bootstrap_rows()}
     keys = [
         ("stock_0_100", "mlp_integral"),
@@ -344,41 +344,42 @@ def figure_ablation_calibration() -> None:
     axes[0].set_xlabel("Other MAE − primary MAE\n(kg m$^{-2}$)", fontsize=11)
     axes[0].set_title("(a)", fontsize=12, loc="left")
     rebuilt = METRICS / "round12_intervals.json"
-    width = axes[1].twinx()
     if rebuilt.exists():
         payload = json.loads(rebuilt.read_text(encoding="utf-8"))
         pred = pd.DataFrame(payload["models"]["mcu"]["scores"]["predicted_decile"])
         obs = pd.DataFrame(payload["models"]["mcu"]["scores"]["observed_decile"])
         axes[1].plot(pred["decile"], pred["picp"], marker="o", color="#2166ac", label="Prediction")
         axes[1].plot(obs["decile"], obs["picp"], marker="s", color="#b2182b", label="Target, post hoc")
-        width.plot(pred["decile"], pred["mpiw"], color="#2166ac", lw=1.0, ls="--")
         axes[1].set_xticks(pred["decile"])
-        axes[1].set_xticklabels([str(int(d)) for d in pred["decile"]], fontsize=14)
-        axes[1].set_xlabel("Decile (n = 321). 1 is lowest.", fontsize=14)
-        axes[1].set_title("(b)", fontsize=12, loc="left")
+        axes[1].set_xticklabels([str(int(d)) for d in pred["decile"]], fontsize=12)
+        axes[1].set_xlabel("Decile (n = 321). 1 is lowest.", fontsize=12)
+        axes[1].set_title("(b) Coverage", fontsize=12, loc="left")
+        axes[2].plot(pred["decile"], pred["mpiw"], marker="o", color="#2166ac", label="Prediction")
+        axes[2].plot(obs["decile"], obs["mpiw"], marker="s", color="#b2182b", label="Target, post hoc")
+        axes[2].set_xticks(pred["decile"])
+        axes[2].set_xticklabels([str(int(d)) for d in pred["decile"]], fontsize=12)
+        axes[2].set_xlabel("Decile (n = 321). 1 is lowest.", fontsize=12)
+        axes[2].set_title("(c) Width", fontsize=12, loc="left")
     else:
         payload = json.loads((METRICS / "round6_scaled_intervals.json").read_text(encoding="utf-8"))
         dec = pd.DataFrame(payload["deciles"])
         axes[1].plot(dec["predicted_decile"], dec["picp_constant_residual"], marker="o", color="#2166ac", label="Constant-width coverage")
         axes[1].plot(dec["predicted_decile"], dec["picp_scaled_residual"], marker="s", color="#b2182b", label="Scaled-width coverage")
-        width.plot(dec["predicted_decile"], dec["mean_width_constant"], color="#2166ac", lw=1.0, ls="--", label="Constant width")
-        width.plot(dec["predicted_decile"], dec["mean_width_scaled"], color="#b2182b", lw=1.0, ls="--", label="Scaled width")
+        axes[2].plot(dec["predicted_decile"], dec["mean_width_constant"], color="#2166ac", lw=1.0, ls="--", label="Constant width")
+        axes[2].plot(dec["predicted_decile"], dec["mean_width_scaled"], color="#b2182b", lw=1.0, ls="--", label="Scaled width")
         axes[1].set_xticks(dec["predicted_decile"])
         axes[1].set_xticklabels([f"{int(d)}\nn={int(n)}" for d, n in zip(dec["predicted_decile"], dec["n"])], fontsize=8)
         axes[1].set_xlabel("Decile of the predicted 0–100 cm stock", fontsize=8)
         axes[1].set_title("(b)", fontsize=12, loc="left")
     axes[1].axhline(0.90, color="black", lw=0.8, ls=":", label="Nominal 90%")
     axes[1].set_ylim(0.45, 1.02)
-    width.set_ylim(0, 40)
-    axes[1].set_ylabel("Empirical coverage", fontsize=14)
-    width.set_ylabel("Mean interval width (kg m$^{-2}$)", fontsize=14)
-    axes[1].tick_params(labelsize=13)
-    width.tick_params(labelsize=13)
-    handles, texts = axes[1].get_legend_handles_labels()
-    handles2, texts2 = width.get_legend_handles_labels()
-    axes[1].legend(handles + handles2, texts + texts2, frameon=False, fontsize=9, loc="upper center", bbox_to_anchor=(0.5, -0.32), ncol=2)
+    axes[1].set_ylabel("Empirical coverage", fontsize=12)
+    axes[2].set_ylabel("Mean interval width (kg m$^{-2}$)", fontsize=12)
+    axes[1].tick_params(labelsize=11)
+    axes[2].tick_params(labelsize=11)
+    axes[1].legend(frameon=False, fontsize=9, loc="lower left")
+    axes[2].legend(frameon=False, fontsize=9, loc="upper left")
     fig.tight_layout()
-    fig.subplots_adjust(left=0.16, right=0.90, wspace=0.55, bottom=0.28, top=0.88)
     _save(fig, "fig07_ablation_calibration")
 
 
@@ -546,13 +547,13 @@ def _draw_synthetic(part, pid, layer_edges, truths, designs, figsize, filename: 
                 ("lowfreq", "#2166ac", "k = 0…3"),
             ):
                 one = block.loc[block["model"] == model]
-                ax.plot(one["q_pred"], one["depth_cm"], color=colour, lw=1.3, label=label, zorder=2)
+                ax.plot(one["q_pred"], one["depth_cm"], color=colour, lw=1.5, ls="-" if model == "highfreq" else "--", label=label, zorder=2)
             if design == "irregular_layers":
                 for edge in layer_edges:
                     if 0 < float(edge) < 100:
                         ax.axhline(float(edge), color="#737373", lw=0.8, ls="--", zorder=1)
             ax.set_ylim(100, 0)
-            ax.tick_params(labelsize=10)
+            ax.tick_params(labelsize=12)
             low = block.loc[block["model"] == "lowfreq"]
             if not low.empty:
                 z = low["depth_cm"].to_numpy(float)
@@ -560,7 +561,7 @@ def _draw_synthetic(part, pid, layer_edges, truths, designs, figsize, filename: 
                 pred = low["q_pred"].to_numpy(float)
                 rel = float(np.sqrt(np.mean((pred - q_known) ** 2)) / max(np.sqrt(np.mean(q_known**2)), 1e-8))
                 peak_err = abs(float(z[int(np.argmax(pred))] - z[int(np.argmax(q_known))]))
-                ax.set_xlabel(f"rel. L2 {rel:.2f}\npeak error {peak_err:.0f} cm", fontsize=10)
+                ax.set_xlabel(f"rel. L2 {rel:.2f}\npeak error {peak_err:.0f} cm", fontsize=12)
             if row == 0:
                 ax.set_title({"decay": "Decay", "bulge": "Bulge", "horizons": "Three pieces", "deep_peak": "Deep peak"}[truth], fontsize=11)
             if col == 0:
@@ -934,8 +935,8 @@ def figure_peak_geometry() -> None:
             )
         ax.set_xticks([1, 2, 3, 5, 10])
         ax.set_title(title, fontsize=12)
-        ax.tick_params(labelsize=11)
-        ax.set_xlabel("Equal layers on 0–100 cm", fontsize=12)
+        ax.tick_params(labelsize=13)
+        ax.set_xlabel("Equal layers on 0–100 cm", fontsize=13)
     axes[1, 0].set_ylim(-0.02, 1.05)
     axes[1, 1].set_ylim(-0.02, 1.05)
     handles, texts = axes[0, 0].get_legend_handles_labels()

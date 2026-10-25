@@ -268,11 +268,15 @@ def _common_figure(summary: dict) -> None:
         paired = part.get("gap_minus_fixed_spline")
         if not paired:
             continue
-        labels.append(f"{label}\nn={part['n_profiles']:,}")
+        labels.append(
+            f"{label}, n={part['n_profiles']:,}\n"
+            f"{part['gap_scored_layers']:,} vs {part['fixed_scored_layers']:,} hidden layers\n"
+            f"median thickness {part['gap_median_thickness_cm']:.0f} vs {part['fixed_median_thickness_cm']:.0f} cm"
+        )
         means.append(paired["mean"])
         low.append(paired["ci95_low"])
         high.append(paired["ci95_high"])
-    fig, ax = plt.subplots(figsize=(6.2, 3.5))
+    fig, ax = plt.subplots(figsize=(7.4, 4.2))
     y = np.arange(len(labels))
     means_a = np.array(means)
     ax.errorbar(
@@ -286,10 +290,14 @@ def _common_figure(summary: dict) -> None:
         ms=7,
     )
     ax.axvline(0, color="black", lw=0.8)
+    span = max(high) - min(low)
+    ax.set_xlim(min(low) - 0.15 * span, max(high) + 0.28 * span)
     ax.set_yticks(y)
-    ax.set_yticklabels(labels, fontsize=12)
+    ax.set_yticklabels(labels, fontsize=11)
     ax.tick_params(labelsize=12)
-    ax.set_xlabel("Gap-fill spline error − fixed-node spline error (kg m$^{-2}$)", fontsize=12)
+    ax.set_xlabel("Gap-fill minus fixed nodes (kg m$^{-2}$)", fontsize=12)
+    for y_i, mean_i, low_i, high_i in zip(y, means_a, low, high):
+        ax.text(high_i + 0.002, y_i, f"{mean_i:.3f}", va="center", fontsize=11, color="#2166ac")
     fig.tight_layout()
     FIGURES.mkdir(parents=True, exist_ok=True)
     fig.savefig(FIGURES / "fig21_layer_subsets.png", dpi=300)

@@ -184,6 +184,53 @@
           "n_profiles": 35
         }
       }
+    },
+    "taiwan_only": {
+      "n_profiles": 27,
+      "n_layers": 128,
+      "median_layer_thickness_cm": 22.0,
+      "spline": {
+        "mean": 1.5542696456486629,
+        "ci95_low": 0.7666887026072967,
+        "ci95_high": 2.6866638936697873,
+        "n_profiles": 27
+      },
+      "linear": {
+        "mean": 1.5719009484786723,
+        "ci95_low": 0.7782195313421131,
+        "ci95_high": 2.6717645364414015,
+        "n_profiles": 27
+      },
+      "nearest": {
+        "mean": 2.8328875180952378,
+        "ci95_low": 1.392616191091711,
+        "ci95_high": 4.773789216605379,
+        "n_profiles": 27
+      },
+      "linear_minus_spline": {
+        "mean": 0.017631302830009625,
+        "ci95_low": -0.059739111477815854,
+        "ci95_high": 0.08903972599727573,
+        "n_profiles": 27
+      },
+      "nearest_minus_spline": {
+        "mean": 1.2786178724465755,
+        "ci95_low": 0.5856879539093448,
+        "ci95_high": 2.190098977580091,
+        "n_profiles": 27
+      },
+      "role": "subset description; not a national external test"
+    },
+    "outside_taiwan": {
+      "n_profiles": 8,
+      "n_layers": 11,
+      "median_layer_thickness_cm": 14.0,
+      "spline_mean": 0.5267206389589003,
+      "linear_mean": 0.535046096893734,
+      "nearest_mean": 1.0617141875000002,
+      "linear_minus_spline_mean": 0.008325457934833561,
+      "significance_test": false,
+      "role": "too few profiles for a significance statement"
     }
   },
   "concentration_g_per_kg": {

@@ -348,6 +348,22 @@ def _counts(detail: pd.DataFrame) -> dict:
     return out
 
 
+def _means_only(detail: pd.DataFrame) -> dict:
+    if detail.empty or "abs_spline" not in detail.columns:
+        return {"n_profiles": 0, "n_layers": 0, "significance_test": False}
+    means = detail.groupby("profile_id", sort=False)[["abs_spline", "abs_linear", "abs_nearest"]].mean()
+    return {
+        "n_profiles": int(len(means)),
+        "n_layers": int(len(detail)),
+        "median_layer_thickness_cm": float(detail["thickness_cm"].median()),
+        "spline_mean": float(means["abs_spline"].mean()),
+        "linear_mean": float(means["abs_linear"].mean()),
+        "nearest_mean": float(means["abs_nearest"].mean()),
+        "linear_minus_spline_mean": float((means["abs_linear"] - means["abs_spline"]).mean()),
+        "significance_test": False,
+    }
+
+
 def _anonymous(detail: pd.DataFrame, target: str) -> pd.DataFrame:
     if detail.empty:
         return pd.DataFrame()
@@ -383,6 +399,13 @@ def run() -> dict:
             "methods_were_not_converted": True,
             "macro": _macro(subset, np.random.default_rng(43)),
         }
+    if not stock_detail.empty and "province_en" in stock_detail.columns:
+        taiwan = stock_detail.loc[stock_detail["province_en"].fillna("") == "Taiwan"]
+        outside = stock_detail.loc[stock_detail["province_en"].fillna("") != "Taiwan"]
+        stock["taiwan_only"] = _macro(taiwan, np.random.default_rng(47))
+        stock["taiwan_only"]["role"] = "subset description; not a national external test"
+        stock["outside_taiwan"] = _means_only(outside)
+        stock["outside_taiwan"]["role"] = "too few profiles for a significance statement"
     concentration_summary["scored_layer_composition_without_v10_match"] = _counts(
         concentration_detail.loc[~concentration_detail["matches_v10_coordinate"]] if len(concentration_detail) else concentration_detail
     )
@@ -429,7 +452,7 @@ def _panel(ax, block: dict, xlabel: str, letter: str, note: str) -> None:
 
 
 def _figure(summary: dict) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.6))
+    fig, axes = plt.subplots(1, 3, figsize=(10.6, 3.8))
     _panel(
         axes[0],
         summary["stock"]["all_scored_profiles"],
@@ -443,6 +466,22 @@ def _figure(summary: dict) -> None:
         "Paired difference (g kg$^{-1}$)",
         "b",
         "Concentration, n=1,538",
+    )
+    counts = summary["stock"]["scored_layer_composition"]["province_profile_counts"]
+    names = list(counts)
+    values = [counts[name] for name in names]
+    y = np.arange(len(names))
+    axes[2].barh(y, values, color="#4d4d4d")
+    axes[2].set_yticks(y)
+    axes[2].set_yticklabels(names, fontsize=11)
+    axes[2].set_xlabel("Stock profiles", fontsize=12)
+    inputs = summary["inputs"]
+    axes[2].set_title(
+        f"(c) {inputs['china_profiles_with_organic_carbon']:,} profiles\n"
+        f"{inputs['profiles_with_complete_stock_inputs']} complete, "
+        f"{summary['stock']['all_scored_profiles']['n_profiles']} scored",
+        fontsize=11,
+        loc="left",
     )
     fig.tight_layout()
     FIGURES.mkdir(parents=True, exist_ok=True)
