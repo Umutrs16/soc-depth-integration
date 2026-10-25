@@ -1,0 +1,114 @@
+{
+  "method": "Bishop equal-area quadratic smoothing spline, mpspline2 linear system",
+  "primary_lambda": 0.1,
+  "lambda_was_not_chosen_from_hidden_errors": true,
+  "sampling_unit": "profile",
+  "bootstrap_seed": 11,
+  "bootstrap_draws": 2000,
+  "n_profiles": 3906,
+  "n_hidden_layers": 8978,
+  "failed_fits": 0,
+  "not_a_spatial_score": true,
+  "not_an_adaptive_sampling_trial": true,
+  "profile_macro_mae": {
+    "eaqss_0.1": {
+      "mean": 0.9829663989826661,
+      "ci95_low": 0.9364586397289386,
+      "ci95_high": 1.0308020460717167,
+      "n_profiles": 3906
+    },
+    "nearest_layer": {
+      "mean": 1.6958629641219836,
+      "ci95_low": 1.6225948178981573,
+      "ci95_high": 1.773810620193113,
+      "n_profiles": 3906
+    },
+    "linear_between_neighbours": {
+      "mean": 1.0086070123394253,
+      "ci95_low": 0.961555269835612,
+      "ci95_high": 1.0594409458154779,
+      "n_profiles": 3906
+    },
+    "eaqss_0.01_sensitivity": {
+      "mean": 0.9899930191068392,
+      "ci95_low": 0.9418836216421158,
+      "ci95_high": 1.0391695076451777,
+      "n_profiles": 3906
+    },
+    "eaqss_1_sensitivity": {
+      "mean": 0.9806032173146505,
+      "ci95_low": 0.9346497676623874,
+      "ci95_high": 1.0284685836860004,
+      "n_profiles": 3906
+    }
+  },
+  "paired_other_minus_eaqss": {
+    "nearest_layer": {
+      "mean": 0.7128965651393177,
+      "ci95_low": 0.6659765524669307,
+      "ci95_high": 0.7588845549831276,
+      "n_profiles": 3906
+    },
+    "linear_between_neighbours": {
+      "mean": 0.02564061335675921,
+      "ci95_low": 0.018160563970141645,
+      "ci95_high": 0.03258621795329325,
+      "n_profiles": 3906
+    }
+  },
+  "excluding_profile_3637": {
+    "n_profiles": 3905,
+    "mae_eaqss": 0.9766192036256838,
+    "mae_nearest": 1.6956925491746824,
+    "mae_linear": 1.003464335173421
+  },
+  "layer_median_abs": {
+    "eaqss_0.1": 0.44129527487051406,
+    "nearest_layer": 0.7348529411764706,
+    "linear_between_neighbours": 0.4407692307692308
+  },
+  "negative_predictions": {
+    "n": 45,
+    "n_hidden_layers": 8978,
+    "clipped_at_zero": false
+  },
+  "hidden_layers_inside_0_100": {
+    "n_profiles": 3876,
+    "n_hidden_layers": 8125,
+    "note": "Same eligibility rule, restricted to hidden layers contained in 0-100 cm. Not used to choose the primary set.",
+    "profile_macro_mae": {
+      "eaqss_0.1": {
+        "mean": 0.9894588691954012,
+        "ci95_low": 0.9432135175232523,
+        "ci95_high": 1.0391975174417114,
+        "n_profiles": 3876
+      },
+      "nearest_layer": {
+        "mean": 1.7462659688811184,
+        "ci95_low": 1.668546469744984,
+        "ci95_high": 1.8297687405065635,
+        "n_profiles": 3876
+      },
+      "linear_between_neighbours": {
+        "mean": 1.0180130413347743,
+        "ci95_low": 0.9727989936980137,
+        "ci95_high": 1.0685501430272977,
+        "n_profiles": 3876
+      }
+    },
+    "paired_other_minus_eaqss": {
+      "nearest_layer": {
+        "mean": 0.7568070996857175,
+        "ci95_low": 0.7096456018115143,
+        "ci95_high": 0.8028882076146204,
+        "n_profiles": 3876
+      },
+      "linear_between_neighbours": {
+        "mean": 0.02855417213937312,
+        "ci95_low": 0.02157372224995551,
+        "ci95_high": 0.03533745880509244,
+        "n_profiles": 3876
+      }
+    }
+  }
+}
