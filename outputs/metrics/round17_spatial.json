@@ -1,0 +1,257 @@
+{
+  "model": "random forest with the archived fixed settings, refit for this test",
+  "replaces_archived_scores": false,
+  "buffers_predeclared_km": [
+    0.0,
+    25.0,
+    50.0,
+    100.0
+  ],
+  "distance": "equirectangular kilometres, 111.32 km per degree, cosine of the mean latitude of the two sets",
+  "scored_profiles": "union-valid 0-100 cm profiles only",
+  "buffer": {
+    "fits": [
+      {
+        "buffer_km": 0.0,
+        "mean_train_profiles_removed": 0.0,
+        "scored_on_union_valid_0_100": {
+          "n": 3210,
+          "r2": -0.02713473942522504,
+          "rmse": 10.01125481842869,
+          "mae": 4.6378978615067785,
+          "bias": 0.3824561983819607,
+          "ccc": 0.24659754823086694,
+          "slope": 0.168096684481342,
+          "intercept": 8.99907801110786
+        }
+      },
+      {
+        "buffer_km": 25.0,
+        "mean_train_profiles_removed": 299.8,
+        "scored_on_union_valid_0_100": {
+          "n": 3210,
+          "r2": 0.006757145303799672,
+          "rmse": 9.844701022286007,
+          "mae": 4.653527058590996,
+          "bias": 0.3805994011194753,
+          "ccc": 0.2536902689815501,
+          "slope": 0.16881465998575593,
+          "intercept": 8.98978462442815
+        }
+      },
+      {
+        "buffer_km": 50.0,
+        "mean_train_profiles_removed": 843.4,
+        "scored_on_union_valid_0_100": {
+          "n": 3210,
+          "r2": 0.04660001423915883,
+          "rmse": 9.645225312763221,
+          "mae": 4.6642435741401185,
+          "bias": 0.3987414388808305,
+          "ccc": 0.26343813676559835,
+          "slope": 0.17049614457248546,
+          "intercept": 8.990510315244492
+        }
+      },
+      {
+        "buffer_km": 100.0,
+        "mean_train_profiles_removed": 2063.8,
+        "scored_on_union_valid_0_100": {
+          "n": 3210,
+          "r2": 0.13560252079850943,
+          "rmse": 9.1839931796013,
+          "mae": 4.511884809889251,
+          "bias": 0.1492533442794777,
+          "ccc": 0.2645411060682177,
+          "slope": 0.15545985446451815,
+          "intercept": 8.896763907098629
+        }
+      }
+    ],
+    "paired_buffer_minus_zero_buffer": {
+      "25.0": {
+        "n": 3210,
+        "mean": 0.015629197084217398,
+        "ci95_low": -0.05508448440947427,
+        "ci95_high": 0.0853518809381235
+      },
+      "50.0": {
+        "n": 3210,
+        "mean": 0.026345712633339933,
+        "ci95_low": -0.05978826739487005,
+        "ci95_high": 0.10533053397940478
+      },
+      "100.0": {
+        "n": 3210,
+        "mean": -0.12601305161752738,
+        "ci95_low": -0.3559500950198667,
+        "ci95_high": 0.040722027445052995
+      }
+    }
+  },
+  "biomes": {
+    "minimum_union_valid_profiles": 80,
+    "leave_one_biome_random_forest": [
+      {
+        "biome": "Temperate Broadleaf & Mixed Forests",
+        "n_profiles_assigned": 1425,
+        "n": 1425,
+        "r2": 0.08493217169014944,
+        "rmse": 6.592758099951745,
+        "mae": 4.040740660132231,
+        "bias": 1.0562819233487628,
+        "ccc": 0.23468738760955618,
+        "slope": 0.14030533055035152,
+        "intercept": 9.002721711715138
+      },
+      {
+        "biome": "Tropical & Subtropical Moist Broadleaf Forests",
+        "n_profiles_assigned": 887,
+        "n": 887,
+        "r2": -0.036976918442972906,
+        "rmse": 9.573837185382208,
+        "mae": 4.504390205505781,
+        "bias": -1.6268086659445402,
+        "ccc": 0.024437791985552355,
+        "slope": 0.012988113940117499,
+        "intercept": 9.395982757896329
+      },
+      {
+        "biome": "Montane Grasslands & Shrublands",
+        "n_profiles_assigned": 380,
+        "n": 380,
+        "r2": 0.18876146966179663,
+        "rmse": 12.22913693144486,
+        "mae": 6.51528985144733,
+        "bias": -0.8476273885967227,
+        "ccc": 0.3083390332483708,
+        "slope": 0.1808230594196107,
+        "intercept": 9.110999437542716
+      },
+      {
+        "biome": "Deserts & Xeric Shrublands",
+        "n_profiles_assigned": 171,
+        "n": 171,
+        "r2": 0.07075890707663779,
+        "rmse": 20.003264835297575,
+        "mae": 6.372088807221357,
+        "bias": 1.7031167797852838,
+        "ccc": 0.0944947807372514,
+        "slope": 0.04848587918649973,
+        "intercept": 9.671669621626492
+      },
+      {
+        "biome": "Temperate Grasslands, Savannas & Shrublands",
+        "n_profiles_assigned": 160,
+        "n": 160,
+        "r2": 0.24483341856391283,
+        "rmse": 6.648744908900512,
+        "mae": 5.102233059496669,
+        "bias": -0.30337700696875525,
+        "ccc": 0.45130094646816893,
+        "slope": 0.3105594867984102,
+        "intercept": 8.284211332472005
+      },
+      {
+        "biome": "Temperate Conifer Forests",
+        "n_profiles_assigned": 101,
+        "n": 101,
+        "r2": -0.16001596136385832,
+        "rmse": 8.19066481177696,
+        "mae": 6.331712523333332,
+        "bias": 2.8159622616161264,
+        "ccc": 0.36520298518634453,
+        "slope": 0.3336824859504485,
+        "intercept": 10.880229076120754
+      }
+    ],
+    "archived_primary_by_biome": [
+      {
+        "biome": "Deserts & Xeric Shrublands",
+        "source": "archived_primary_spatial_blocks",
+        "n": 171,
+        "r2": 0.06308262454684443,
+        "rmse": 20.085716474271294,
+        "mae": 4.898641143423547,
+        "bias": -2.380427833185895,
+        "ccc": 0.09477611258670877,
+        "slope": 0.04904719588992158,
+        "intercept": 5.583424204206503
+      },
+      {
+        "biome": "Flooded Grasslands & Savannas",
+        "source": "archived_primary_spatial_blocks",
+        "n": 62,
+        "r2": 0.361713891741014,
+        "rmse": 4.83295125184458,
+        "mae": 3.525389957446245,
+        "bias": -0.19259040442194905,
+        "ccc": 0.4898007609509539,
+        "slope": 0.3063832691248099,
+        "intercept": 7.412213273647162
+      },
+      {
+        "biome": "Montane Grasslands & Shrublands",
+        "source": "archived_primary_spatial_blocks",
+        "n": 380,
+        "r2": 0.2782124028936789,
+        "rmse": 11.53522926444201,
+        "mae": 5.926409259674249,
+        "bias": -2.401018789352224,
+        "ccc": 0.39433870740034893,
+        "slope": 0.23497356652825846,
+        "intercept": 6.8993074108453145
+      },
+      {
+        "biome": "Temperate Broadleaf & Mixed Forests",
+        "source": "archived_primary_spatial_blocks",
+        "n": 1425,
+        "r2": 0.11591117341924517,
+        "rmse": 6.480200577355684,
+        "mae": 3.7220035904519095,
+        "bias": -0.8169490949467412,
+        "ccc": 0.22048986943427087,
+        "slope": 0.12503534097729846,
+        "intercept": 7.270636215223231
+      },
+      {
+        "biome": "Temperate Conifer Forests",
+        "source": "archived_primary_spatial_blocks",
+        "n": 101,
+        "r2": 0.06063948817799025,
+        "rmse": 7.370608113885288,
+        "mae": 4.969084676231153,
+        "bias": -1.0203357631122227,
+        "ccc": 0.28181097581256537,
+        "slope": 0.1842983487361566,
+        "intercept": 8.85188824139512
+      },
+      {
+        "biome": "Temperate Grasslands, Savannas & Shrublands",
+        "source": "archived_primary_spatial_blocks",
+        "n": 160,
+        "r2": 0.10703959271770991,
+        "rmse": 7.229934969801066,
+        "mae": 5.356824942746286,
+        "bias": -1.9913987457833264,
+        "ccc": 0.30869758844001277,
+        "slope": 0.19937347222499543,
+        "intercept": 7.9811092552908915
+      },
+      {
+        "biome": "Tropical & Subtropical Moist Broadleaf Forests",
+        "source": "archived_primary_spatial_blocks",
+        "n": 887,
+        "r2": 0.03148820932631291,
+        "rmse": 9.252390387341938,
+        "mae": 4.455284560162031,
+        "bias": -1.6842753178136818,
+        "ccc": 0.10180536175749695,
+        "slope": 0.054887709755686145,
+        "intercept": 8.87058809832919
+      }
+    ],
+    "unassigned_profiles": 40
+  },
+  "ecoregion_source": "RESOLVE Ecoregions 2017, Dinerstein et al., CC-BY 4.0"
+}

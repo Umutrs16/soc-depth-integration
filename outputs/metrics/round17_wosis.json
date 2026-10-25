@@ -1,0 +1,206 @@
+{
+  "source": "WoSIS snapshot December 2023",
+  "doi": "10.17027/isric-wdcsoils-20231130",
+  "citation": "Calisto, de Sousa and Batjes (2023), doi:10.17027/isric-wdcsoils-20231130; Batjes, Calisto and de Sousa (2024), Earth System Science Data 16, 4735-4765",
+  "land_mask": "GS (2024) 0650 province polygons",
+  "licences_retained": "Rows marked CC BY, CC BY-NC, CC0, or public domain",
+  "not_redistributed": true,
+  "not_a_fine_depth_truth": true,
+  "not_a_spatial_score": true,
+  "lambda": 0.1,
+  "inputs": {
+    "china_organic_carbon_layers_public_licence": 6375,
+    "china_profiles_with_organic_carbon": 1686,
+    "licence_family_counts": {
+      "cc_by": 5973,
+      "public_domain": 334,
+      "cc0": 68
+    },
+    "bulk_density_rows_by_code": {
+      "bdfiod": 712,
+      "bdwsod": 254,
+      "bdfi33": 257,
+      "bdfifm": 0,
+      "bdfiad": 0
+    },
+    "layers_with_carbon_and_bulk_density": 596,
+    "profiles_with_carbon_and_bulk_density": 151,
+    "layers_with_carbon_bulk_density_and_coarse_fragments": 255,
+    "profiles_with_complete_stock_inputs": 44,
+    "gravimetric_coarse_fragment_rows_not_used": 316,
+    "coarse_fragments_missing_are_excluded": true,
+    "bulk_density_priority": [
+      "bdfiod",
+      "bdwsod",
+      "bdfi33",
+      "bdfifm",
+      "bdfiad"
+    ],
+    "bulk_density_methods_are_not_converted": true,
+    "median_layer_thickness_cm": 23.0,
+    "layers_at_most_5_cm": 151,
+    "layers_at_most_10_cm": 809
+  },
+  "stock": {
+    "unit": "kg m-2",
+    "not_a_stock": false,
+    "failed_fits": 0,
+    "coordinate_overlap_in_input_profiles": {
+      "profiles": 0,
+      "profiles_in_frame": 44,
+      "key": "latitude and longitude rounded to 4 decimal degrees"
+    },
+    "all_scored_profiles": {
+      "n_profiles": 35,
+      "n_layers": 139,
+      "median_layer_thickness_cm": 21.0,
+      "spline": {
+        "mean": 1.3194013012624313,
+        "ci95_low": 0.6703516698018853,
+        "ci95_high": 2.209850818501241,
+        "n_profiles": 35
+      },
+      "linear": {
+        "mean": 1.3349055538306862,
+        "ci95_low": 0.7118266260773923,
+        "ci95_high": 2.2675815451547052,
+        "n_profiles": 35
+      },
+      "nearest": {
+        "mean": 2.4280478996734702,
+        "ci95_low": 1.3131863938244897,
+        "ci95_high": 3.9930423773533996,
+        "n_profiles": 35
+      },
+      "linear_minus_spline": {
+        "mean": 0.015504252568255095,
+        "ci95_low": -0.042461946295061226,
+        "ci95_high": 0.07059470922071413,
+        "n_profiles": 35
+      },
+      "nearest_minus_spline": {
+        "mean": 1.108646598411038,
+        "ci95_low": 0.5835883222868187,
+        "ci95_high": 1.7817328254916076,
+        "n_profiles": 35
+      }
+    },
+    "profiles_without_v10_coordinate_match": {
+      "n_profiles": 35,
+      "n_layers": 139,
+      "median_layer_thickness_cm": 21.0,
+      "spline": {
+        "mean": 1.3194013012624313,
+        "ci95_low": 0.6844225796062343,
+        "ci95_high": 2.202917200963947,
+        "n_profiles": 35
+      },
+      "linear": {
+        "mean": 1.3349055538306862,
+        "ci95_low": 0.7040879020363587,
+        "ci95_high": 2.311891183779604,
+        "n_profiles": 35
+      },
+      "nearest": {
+        "mean": 2.4280478996734702,
+        "ci95_low": 1.3172447564758507,
+        "ci95_high": 3.9547829199061226,
+        "n_profiles": 35
+      },
+      "linear_minus_spline": {
+        "mean": 0.015504252568255095,
+        "ci95_low": -0.04347158781919746,
+        "ci95_high": 0.06800924517369393,
+        "n_profiles": 35
+      },
+      "nearest_minus_spline": {
+        "mean": 1.108646598411038,
+        "ci95_low": 0.5590693872233917,
+        "ci95_high": 1.8035390755954823,
+        "n_profiles": 35
+      }
+    },
+    "estimable": true,
+    "missing_coarse_fragments_were_not_set_to_zero": true
+  },
+  "concentration_g_per_kg": {
+    "unit": "g kg-1",
+    "not_a_stock": true,
+    "failed_fits": 0,
+    "coordinate_overlap_in_input_profiles": {
+      "profiles": 3,
+      "profiles_in_frame": 1686,
+      "key": "latitude and longitude rounded to 4 decimal degrees"
+    },
+    "all_scored_profiles": {
+      "n_profiles": 1541,
+      "n_layers": 2970,
+      "median_layer_thickness_cm": 24.0,
+      "spline": {
+        "mean": 4.050447802065426,
+        "ci95_low": 3.3993581100026167,
+        "ci95_high": 4.9596627298378255,
+        "n_profiles": 1541
+      },
+      "linear": {
+        "mean": 4.13237468529541,
+        "ci95_low": 3.4561969018062153,
+        "ci95_high": 5.066453638358216,
+        "n_profiles": 1541
+      },
+      "nearest": {
+        "mean": 6.919899699226434,
+        "ci95_low": 6.080724324160769,
+        "ci95_high": 7.975608812176177,
+        "n_profiles": 1541
+      },
+      "linear_minus_spline": {
+        "mean": 0.08192688322998387,
+        "ci95_low": 0.04763692084013267,
+        "ci95_high": 0.11328346628099958,
+        "n_profiles": 1541
+      },
+      "nearest_minus_spline": {
+        "mean": 2.869451897161009,
+        "ci95_low": 2.5628317228708832,
+        "ci95_high": 3.1910004720294505,
+        "n_profiles": 1541
+      }
+    },
+    "profiles_without_v10_coordinate_match": {
+      "n_profiles": 1538,
+      "n_layers": 2958,
+      "median_layer_thickness_cm": 24.0,
+      "spline": {
+        "mean": 4.05650083217885,
+        "ci95_low": 3.3742473228854415,
+        "ci95_high": 4.9904028592855845,
+        "n_profiles": 1538
+      },
+      "linear": {
+        "mean": 4.137725434262314,
+        "ci95_low": 3.494613460862352,
+        "ci95_high": 5.110486144386988,
+        "n_profiles": 1538
+      },
+      "nearest": {
+        "mean": 6.927253209693067,
+        "ci95_low": 6.089103886076538,
+        "ci95_high": 7.993615792773546,
+        "n_profiles": 1538
+      },
+      "linear_minus_spline": {
+        "mean": 0.08122460208346355,
+        "ci95_low": 0.04772377544947636,
+        "ci95_high": 0.11356932144642837,
+        "n_profiles": 1538
+      },
+      "nearest_minus_spline": {
+        "mean": 2.8707523775142167,
+        "ci95_low": 2.5463798547354908,
+        "ci95_high": 3.2138087346548327,
+        "n_profiles": 1538
+      }
+    }
+  }
+}

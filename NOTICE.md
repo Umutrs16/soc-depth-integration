@@ -7,3 +7,5 @@ The soil-profile tables are not included. Version 10, which is the modelling tab
 The standard administrative boundaries with map review number GS (2024) 0650 are not included. They must be obtained from the official source and are not covered by the code license.
 
 Archived out-of-fold predictions are included so that the published 0–100 cm comparison can be recomputed. They are derived results, not a redistribution of the source table. Network weights were not saved.
+
+The WoSIS December 2023 snapshot (DOI 10.17027/isric-wdcsoils-20231130) and the RESOLVE Ecoregions 2017 polygons are not included. The archive stores aggregate summaries of those checks. WoSIS rows are not redistributed. The horizon check is not a centimetre-scale reference.

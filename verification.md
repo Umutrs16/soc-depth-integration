@@ -19,6 +19,8 @@ The planned comparison uses the archived random-forest predictions. `outputs/tab
 
 The equal-area hidden-layer comparison is a separate within-profile calculation. `outputs/metrics/round16_eaqss.json` stores its profile-mean errors, the thickness groups, the density and relative errors, and the clip-at-zero sensitivity. The primary summary remains the unclipped spline at lambda 0.1. Refitting it requires the processed layer table, which is not in this archive. It does not replace the spatial-block scores, and it is not an adaptive sampling trial or a prospective sampling budget.
 
+`src.round17_intervals` can be rerun from the archived out-of-fold stocks and the coverage table. Its Gaussian scales do not replace the percentile interval. The buffer and biome numbers in `outputs/metrics/round17_spatial.json` come from a new forest fit. They are not the archived forest and not a retraining of the primary network. Rebuilding that fit needs the processed layers and the RESOLVE ecoregion polygons, which are not in this archive. `outputs/metrics/round17_layer_subsets.json` is a retrospective omission of layers that were already recorded. It is not an active sampling trial. `outputs/metrics/round17_wosis.json` summarises public WoSIS horizons inside the standard polygons. The complete-stock subset has 35 profiles, and none of them matches a version-10 coordinate at four decimal degrees. The concentration summary is in g/kg and is not a stock. The raw snapshot is not in this archive. These horizons are not a centimetre-scale reference and not a spatial-block score.
+
 ## B. Steps that need data outside this archive
 
 Training, covariate extraction and geographic figures also require:
@@ -26,8 +28,9 @@ Training, covariate extraction and geographic figures also require:
 - the Zenodo version-10 profile table
 - the standard administrative boundaries with map review number GS (2024) 0650
 - a Google Earth Engine extraction of the covariates
+- the WoSIS December 2023 snapshot and the RESOLVE Ecoregions 2017 polygons, for the external horizon check and the biome refit
 
-Those files are not in this archive. The map review number belongs in the figure caption. It is not drawn on the map.
+Those files are not in this archive. The map review number belongs in the figure caption. It is not drawn on the map. WoSIS rows are not redistributed.
 
 ## C. What cannot be reproduced bit for bit
 
