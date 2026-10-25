@@ -155,6 +155,7 @@ def _layers() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
     else:
         organic["cfvo"] = np.nan
     organic["thickness_cm"] = organic["lower_depth"] - organic["upper_depth"]
+    organic = _annotate(organic)
     with_density = organic["value_avg"].gt(0) & organic["bulk_density"].gt(0) & organic["thickness_cm"].gt(0)
     usable = organic.loc[with_density & organic["cfvo"].between(0, 100)].copy()
     usable["socd_kgm2"] = (
@@ -184,6 +185,25 @@ def _layers() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
         "layers_at_most_10_cm": int(organic["thickness_cm"].le(10).sum()) if len(organic) else 0,
     }
     return usable, concentration, info
+
+
+def _annotate(frame: pd.DataFrame) -> pd.DataFrame:
+    import geopandas as gpd
+
+    provinces = load_provinces()[["name_en", "geometry"]]
+    points = gpd.GeoDataFrame(
+        frame.copy(),
+        geometry=gpd.points_from_xy(frame["longitude"], frame["latitude"]),
+        crs="EPSG:4326",
+    )
+    placed = gpd.sjoin(points, provinces, predicate="within", how="left").drop_duplicates(["profile_id", "layer_id"])
+    eco_path = DATA / "raw" / "ecoregions" / "Ecoregions2017.zip"
+    eco = gpd.read_file(f"zip://{eco_path}")[["BIOME_NAME", "geometry"]]
+    placed = gpd.sjoin(placed.drop(columns=["index_right"], errors="ignore"), eco, predicate="intersects", how="left")
+    placed = placed.drop_duplicates(["profile_id", "layer_id"])
+    out = pd.DataFrame(placed.drop(columns=["geometry", "index_right"], errors="ignore"))
+    out = out.rename(columns={"name_en": "province_en", "BIOME_NAME": "biome"})
+    return out
 
 
 def _overlap(frame: pd.DataFrame) -> pd.DataFrame:
@@ -243,16 +263,22 @@ def _spline(frame: pd.DataFrame, mode: str) -> tuple[pd.DataFrame, int]:
                 linear = _linear_stock(top, bot, density, hidden) / thickness
                 nearest = _nearest_stock(top, bot, density, thickness, hidden) / thickness
                 observed = float(observed_layer[hidden])
-            rows.append(
-                {
-                    "profile_id": pid,
-                    "matches_v10_coordinate": matched,
-                    "thickness_cm": thickness,
-                    "abs_spline": abs(predicted_value - observed),
-                    "abs_linear": abs(linear - observed),
-                    "abs_nearest": abs(nearest - observed),
-                }
-            )
+            row = {
+                "profile_id": pid,
+                "matches_v10_coordinate": matched,
+                "thickness_cm": thickness,
+                "midpoint_cm": float(0.5 * (top[hidden] + bot[hidden])),
+                "abs_spline": abs(predicted_value - observed),
+                "abs_linear": abs(linear - observed),
+                "abs_nearest": abs(nearest - observed),
+            }
+            if "bulk_density_code" in group.columns:
+                row["bulk_density_code"] = str(group["bulk_density_code"].iloc[hidden])
+            if "province_en" in group.columns:
+                row["province_en"] = group["province_en"].iloc[0]
+            if "biome" in group.columns:
+                row["biome"] = group["biome"].iloc[0]
+            rows.append(row)
     return pd.DataFrame(rows), failed
 
 
@@ -296,15 +322,70 @@ def _target_summary(frame: pd.DataFrame, mode: str, rng: np.random.Generator) ->
         "coordinate_overlap_in_input_profiles": _overlap_count(frame),
         "all_scored_profiles": _macro(detail, rng),
         "profiles_without_v10_coordinate_match": _macro(unmatched, rng),
+        "_detail": detail,
     }
+
+
+def _counts(detail: pd.DataFrame) -> dict:
+    if detail.empty:
+        return {"n_profiles": 0, "n_layers": 0}
+    province = detail.groupby("profile_id")["province_en"].first().fillna("unassigned").astype(str)
+    biome = detail.groupby("profile_id")["biome"].first().fillna("unassigned").astype(str)
+    out = {
+        "n_profiles": int(detail["profile_id"].nunique()),
+        "n_layers": int(len(detail)),
+        "province_profile_counts": {key: int(value) for key, value in province.value_counts().items()},
+        "biome_profile_counts": {key: int(value) for key, value in biome.value_counts().items()},
+        "midpoint_cm_p25": float(detail["midpoint_cm"].quantile(0.25)),
+        "midpoint_cm_median": float(detail["midpoint_cm"].median()),
+        "midpoint_cm_p75": float(detail["midpoint_cm"].quantile(0.75)),
+        "median_scored_layers_per_profile": float(detail.groupby("profile_id").size().median()),
+    }
+    if "bulk_density_code" in detail.columns:
+        out["bulk_density_code_layer_counts"] = {
+            str(key): int(value) for key, value in detail["bulk_density_code"].fillna("missing").value_counts().items()
+        }
+    return out
+
+
+def _anonymous(detail: pd.DataFrame, target: str) -> pd.DataFrame:
+    if detail.empty:
+        return pd.DataFrame()
+    means = detail.groupby("profile_id", sort=False).agg(
+        n_scored_layers=("abs_spline", "size"),
+        median_thickness_cm=("thickness_cm", "median"),
+        median_midpoint_cm=("midpoint_cm", "median"),
+        abs_spline=("abs_spline", "mean"),
+        abs_linear=("abs_linear", "mean"),
+        abs_nearest=("abs_nearest", "mean"),
+        matches_v10_coordinate=("matches_v10_coordinate", "max"),
+    )
+    means = means.reset_index(drop=True)
+    means.insert(0, "anonymous_id", np.arange(1, len(means) + 1))
+    means.insert(1, "target", target)
+    return means
 
 
 def run() -> dict:
     usable, concentration, info = _layers()
     stock = _target_summary(usable, "stock", np.random.default_rng(SEED))
     concentration_summary = _target_summary(concentration, "concentration", np.random.default_rng(SEED + 2))
+    stock_detail = stock.pop("_detail")
+    concentration_detail = concentration_summary.pop("_detail")
     stock["estimable"] = stock["all_scored_profiles"]["n_profiles"] > 0
     stock["missing_coarse_fragments_were_not_set_to_zero"] = True
+    stock["scored_layer_composition"] = _counts(stock_detail)
+    if not stock_detail.empty and "bulk_density_code" in stock_detail.columns:
+        majority = str(stock_detail["bulk_density_code"].value_counts().index[0])
+        subset = stock_detail.loc[stock_detail["bulk_density_code"] == majority]
+        stock["majority_bulk_density_code_only"] = {
+            "code": majority,
+            "methods_were_not_converted": True,
+            "macro": _macro(subset, np.random.default_rng(43)),
+        }
+    concentration_summary["scored_layer_composition_without_v10_match"] = _counts(
+        concentration_detail.loc[~concentration_detail["matches_v10_coordinate"]] if len(concentration_detail) else concentration_detail
+    )
     summary = {
         "source": "WoSIS snapshot December 2023",
         "doi": "10.17027/isric-wdcsoils-20231130",
@@ -320,33 +401,31 @@ def run() -> dict:
         "concentration_g_per_kg": concentration_summary,
     }
     TABLES.mkdir(parents=True, exist_ok=True)
+    anonymous = pd.concat(
+        [_anonymous(stock_detail, "stock_kg_m2"), _anonymous(concentration_detail, "concentration_g_kg")],
+        ignore_index=True,
+    )
+    anonymous.to_csv(TABLES / "round18_wosis_anonymous_profiles.csv", index=False)
     (METRICS / "round17_wosis.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     _figure(summary)
     print(json.dumps(summary, indent=2))
     return summary
 
 
-def _panel(ax, block: dict, ylabel: str, letter: str, note: str) -> None:
-    keys = ("spline", "linear", "nearest")
+def _panel(ax, block: dict, xlabel: str, letter: str, note: str) -> None:
+    labels = ["Linear − spline", "Nearest − spline"]
+    keys = ("linear_minus_spline", "nearest_minus_spline")
     means = np.array([block[key]["mean"] for key in keys])
     low = np.array([block[key]["ci95_low"] for key in keys])
     high = np.array([block[key]["ci95_high"] for key in keys])
-    xpos = np.arange(len(keys))
-    ax.bar(
-        xpos,
-        means,
-        color=["#2166ac", "#4d4d4d", "#b2182b"],
-        width=0.72,
-        yerr=np.vstack([means - low, high - means]),
-        capsize=3,
-        error_kw={"elinewidth": 0.8, "ecolor": "black"},
-    )
-    ax.set_xticks(xpos)
-    ax.set_xticklabels(["Spline", "Linear", "Nearest"], fontsize=10)
-    ax.set_ylabel(ylabel, fontsize=10)
-    ax.set_ylim(0, float(np.max(high)) * 1.22)
-    ax.text(0.02, 0.98, f"({letter})", transform=ax.transAxes, va="top", ha="left", fontsize=11)
-    ax.text(0.98, 0.98, note, transform=ax.transAxes, va="top", ha="right", fontsize=9)
+    y = np.array([1, 0])
+    ax.errorbar(means, y, xerr=[means - low, high - means], fmt="o", color="#2166ac", ecolor="#4d4d4d", capsize=3, ms=7)
+    ax.axvline(0, color="black", lw=0.8)
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=12)
+    ax.tick_params(labelsize=12)
+    ax.set_xlabel(xlabel, fontsize=12)
+    ax.text(0.98, 0.92, f"({letter}) {note}", transform=ax.transAxes, va="top", ha="right", fontsize=12)
 
 
 def _figure(summary: dict) -> None:
@@ -354,16 +433,16 @@ def _figure(summary: dict) -> None:
     _panel(
         axes[0],
         summary["stock"]["all_scored_profiles"],
-        "Profile-mean absolute error (kg m$^{-2}$)",
+        "Paired difference (kg m$^{-2}$)",
         "a",
-        "35 profiles",
+        "Stock, n=35",
     )
     _panel(
         axes[1],
         summary["concentration_g_per_kg"]["profiles_without_v10_coordinate_match"],
-        "Profile-mean absolute error (g kg$^{-1}$)",
+        "Paired difference (g kg$^{-1}$)",
         "b",
-        "1,538 profiles",
+        "Concentration, n=1,538",
     )
     fig.tight_layout()
     FIGURES.mkdir(parents=True, exist_ok=True)

@@ -8,4 +8,4 @@ The standard administrative boundaries with map review number GS (2024) 0650 are
 
 Archived out-of-fold predictions are included so that the published 0–100 cm comparison can be recomputed. They are derived results, not a redistribution of the source table. Network weights were not saved.
 
-The WoSIS December 2023 snapshot (DOI 10.17027/isric-wdcsoils-20231130) and the RESOLVE Ecoregions 2017 polygons are not included. The archive stores aggregate summaries of those checks. WoSIS rows are not redistributed. The horizon check is not a centimetre-scale reference.
+The WoSIS December 2023 snapshot (DOI 10.17027/isric-wdcsoils-20231130) and the RESOLVE Ecoregions 2017 polygons are not included. The archive stores aggregate summaries of those checks and an anonymous table of per-profile absolute errors. That table has no coordinates and no WoSIS identifiers. WoSIS rows are not redistributed. The horizon check is not a centimetre-scale reference.

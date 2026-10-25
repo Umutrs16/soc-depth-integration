@@ -121,7 +121,70 @@
       }
     },
     "estimable": true,
-    "missing_coarse_fragments_were_not_set_to_zero": true
+    "missing_coarse_fragments_were_not_set_to_zero": true,
+    "scored_layer_composition": {
+      "n_profiles": 35,
+      "n_layers": 139,
+      "province_profile_counts": {
+        "Taiwan": 27,
+        "Xizang": 4,
+        "Xinjiang": 3,
+        "Hebei": 1
+      },
+      "biome_profile_counts": {
+        "Tropical & Subtropical Moist Broadleaf Forests": 25,
+        "Montane Grasslands & Shrublands": 4,
+        "Deserts & Xeric Shrublands": 3,
+        "unassigned": 2,
+        "Temperate Broadleaf & Mixed Forests": 1
+      },
+      "midpoint_cm_p25": 32.25,
+      "midpoint_cm_median": 58.0,
+      "midpoint_cm_p75": 100.25,
+      "median_scored_layers_per_profile": 4.0,
+      "bulk_density_code_layer_counts": {
+        "bdfiod": 139
+      }
+    },
+    "majority_bulk_density_code_only": {
+      "code": "bdfiod",
+      "methods_were_not_converted": true,
+      "macro": {
+        "n_profiles": 35,
+        "n_layers": 139,
+        "median_layer_thickness_cm": 21.0,
+        "spline": {
+          "mean": 1.3194013012624313,
+          "ci95_low": 0.69264640572313,
+          "ci95_high": 2.23699629134525,
+          "n_profiles": 35
+        },
+        "linear": {
+          "mean": 1.3349055538306862,
+          "ci95_low": 0.7126341966301618,
+          "ci95_high": 2.211776957519154,
+          "n_profiles": 35
+        },
+        "nearest": {
+          "mean": 2.4280478996734702,
+          "ci95_low": 1.2723407641183677,
+          "ci95_high": 3.9562542211942175,
+          "n_profiles": 35
+        },
+        "linear_minus_spline": {
+          "mean": 0.015504252568255095,
+          "ci95_low": -0.04432078831765341,
+          "ci95_high": 0.06888595471351568,
+          "n_profiles": 35
+        },
+        "nearest_minus_spline": {
+          "mean": 1.108646598411038,
+          "ci95_low": 0.5612441410930544,
+          "ci95_high": 1.7940397123446008,
+          "n_profiles": 35
+        }
+      }
+    }
   },
   "concentration_g_per_kg": {
     "unit": "g kg-1",
@@ -200,6 +263,62 @@
         "ci95_low": 2.5463798547354908,
         "ci95_high": 3.2138087346548327,
         "n_profiles": 1538
+      }
+    },
+    "scored_layer_composition_without_v10_match": {
+      "n_profiles": 1538,
+      "n_layers": 2958,
+      "province_profile_counts": {
+        "Liaoning": 99,
+        "Heilongjiang": 96,
+        "Xizang": 80,
+        "Jiangxi": 80,
+        "Gansu": 79,
+        "Xinjiang": 77,
+        "Yunnan": 70,
+        "Jiangsu": 69,
+        "Shaanxi": 68,
+        "Anhui": 64,
+        "Henan": 64,
+        "Inner Mongolia": 61,
+        "Guangdong": 56,
+        "Shandong": 53,
+        "Jilin": 51,
+        "Guizhou": 50,
+        "Sichuan": 47,
+        "Hunan": 46,
+        "Qinghai": 44,
+        "Hebei": 42,
+        "Hubei": 36,
+        "Guangxi": 29,
+        "Hainan": 29,
+        "Taiwan": 28,
+        "Shanxi": 26,
+        "Fujian": 25,
+        "Ningxia": 23,
+        "Zhejiang": 19,
+        "Shanghai": 13,
+        "Beijing": 9,
+        "Chongqing": 4,
+        "Tianjin": 1
+      },
+      "biome_profile_counts": {
+        "Temperate Broadleaf & Mixed Forests": 736,
+        "Tropical & Subtropical Moist Broadleaf Forests": 357,
+        "Montane Grasslands & Shrublands": 196,
+        "Temperate Grasslands, Savannas & Shrublands": 97,
+        "Deserts & Xeric Shrublands": 72,
+        "Temperate Conifer Forests": 51,
+        "Flooded Grasslands & Savannas": 23,
+        "unassigned": 6
+      },
+      "midpoint_cm_p25": 25.5,
+      "midpoint_cm_median": 38.0,
+      "midpoint_cm_p75": 56.5,
+      "median_scored_layers_per_profile": 2.0,
+      "bulk_density_code_layer_counts": {
+        "": 2605,
+        "bdfiod": 353
       }
     }
   }

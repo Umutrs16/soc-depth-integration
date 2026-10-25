@@ -211,5 +211,91 @@ def run() -> dict:
     return summary
 
 
+def common_cohort() -> dict:
+    """Paired comparison on profiles scored by both designs at the same k.
+
+    The original design counts are different sets. This intersection was
+    defined before looking at the paired interval. It is still a retrospective
+    omission of layers that had already been measured.
+    """
+    detail = pd.read_csv(TABLES / "round17_layer_subsets.csv")
+    detail["profile_id"] = detail["profile_id"].astype(str)
+    detail["thickness_cm"] = detail["bottom_cm"] - detail["top_cm"]
+    rng = np.random.default_rng(41)
+    cohorts = {}
+    for k in (3, 5, 7):
+        fixed = detail.loc[(detail["k"] == k) & (detail["design"] == "fixed_nodes")]
+        gap = detail.loc[(detail["k"] == k) & (detail["design"] == "gap_fill")]
+        shared = sorted(set(fixed["profile_id"]).intersection(gap["profile_id"]))
+        fixed_s = fixed.loc[fixed["profile_id"].isin(shared)]
+        gap_s = gap.loc[gap["profile_id"].isin(shared)]
+        if not shared:
+            cohorts[f"k{k}"] = {"n_profiles": 0}
+            continue
+        fixed_mean = fixed_s.groupby("profile_id", sort=False)[["abs_spline", "abs_linear"]].mean()
+        gap_mean = gap_s.groupby("profile_id", sort=False)[["abs_spline", "abs_linear"]].mean().loc[fixed_mean.index]
+        cohorts[f"k{k}"] = {
+            "n_profiles": int(len(shared)),
+            "fixed_scored_layers": int(len(fixed_s)),
+            "gap_scored_layers": int(len(gap_s)),
+            "fixed_median_thickness_cm": float(fixed_s["thickness_cm"].median()),
+            "gap_median_thickness_cm": float(gap_s["thickness_cm"].median()),
+            "fixed_spline": _profile_bootstrap(fixed_mean["abs_spline"].to_numpy(float), rng),
+            "gap_spline": _profile_bootstrap(gap_mean["abs_spline"].to_numpy(float), rng),
+            "fixed_linear_minus_spline": _profile_bootstrap((fixed_mean["abs_linear"] - fixed_mean["abs_spline"]).to_numpy(float), rng),
+            "gap_linear_minus_spline": _profile_bootstrap((gap_mean["abs_linear"] - gap_mean["abs_spline"]).to_numpy(float), rng),
+            "gap_minus_fixed_spline": _profile_bootstrap((gap_mean["abs_spline"] - fixed_mean["abs_spline"]).to_numpy(float), rng),
+        }
+    summary = {
+        "experiment": "common-cohort paired comparison of retrospective layer omissions",
+        "not_an_active_sampling_trial": True,
+        "same_retained_count": True,
+        "scored_layers_can_still_differ": True,
+        "seed": 41,
+        "draws": 2000,
+        "cohorts": cohorts,
+    }
+    (METRICS / "round18_common_cohort.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    _common_figure(summary)
+    print(json.dumps(summary, indent=2))
+    return summary
+
+
+def _common_figure(summary: dict) -> None:
+    labels, means, low, high = [], [], [], []
+    for key, label in (("k3", "3 layers"), ("k5", "5 layers")):
+        part = summary["cohorts"].get(key, {})
+        paired = part.get("gap_minus_fixed_spline")
+        if not paired:
+            continue
+        labels.append(f"{label}\nn={part['n_profiles']:,}")
+        means.append(paired["mean"])
+        low.append(paired["ci95_low"])
+        high.append(paired["ci95_high"])
+    fig, ax = plt.subplots(figsize=(6.2, 3.5))
+    y = np.arange(len(labels))
+    means_a = np.array(means)
+    ax.errorbar(
+        means_a,
+        y,
+        xerr=[means_a - np.array(low), np.array(high) - means_a],
+        fmt="o",
+        color="#2166ac",
+        ecolor="#4d4d4d",
+        capsize=3,
+        ms=7,
+    )
+    ax.axvline(0, color="black", lw=0.8)
+    ax.set_yticks(y)
+    ax.set_yticklabels(labels, fontsize=12)
+    ax.tick_params(labelsize=12)
+    ax.set_xlabel("Gap-fill spline error − fixed-node spline error (kg m$^{-2}$)", fontsize=12)
+    fig.tight_layout()
+    FIGURES.mkdir(parents=True, exist_ok=True)
+    fig.savefig(FIGURES / "fig21_layer_subsets.png", dpi=300)
+    fig.savefig(FIGURES / "fig21_layer_subsets.pdf")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     run()

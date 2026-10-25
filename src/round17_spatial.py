@@ -192,15 +192,26 @@ def _biome_holdout(layers: pd.DataFrame, meta: pd.DataFrame, assigned: pd.DataFr
 
 
 def _figure(summary: dict) -> None:
-    fits = summary["buffer"]["fits"]
-    fig, ax = plt.subplots(figsize=(5.6, 3.4))
-    x = [row["buffer_km"] for row in fits]
-    y = [row["scored_on_union_valid_0_100"]["mae"] for row in fits]
-    ax.plot(x, y, "o-", color="#2166ac", ms=7)
-    ax.set_xlabel("Training profiles removed within this distance (km)", fontsize=11)
-    ax.set_ylabel("0–100 cm absolute error (kg m$^{-2}$)", fontsize=11)
-    ax.set_xticks(x)
-    ax.set_ylim(0, 6)
+    paired = summary["buffer"]["paired_buffer_minus_zero_buffer"]
+    fits = {float(row["buffer_km"]): row for row in summary["buffer"]["fits"]}
+    radii = [25.0, 50.0, 100.0]
+    means = np.array([paired[str(radius)]["mean"] for radius in radii])
+    low = np.array([paired[str(radius)]["ci95_low"] for radius in radii])
+    high = np.array([paired[str(radius)]["ci95_high"] for radius in radii])
+    removed = [fits[radius]["mean_train_profiles_removed"] for radius in radii]
+    fig, axes = plt.subplots(1, 2, figsize=(8.2, 3.6))
+    axes[0].errorbar(radii, means, yerr=[means - low, high - means], fmt="o", color="#2166ac", ecolor="#4d4d4d", capsize=3, ms=7)
+    axes[0].axhline(0, color="black", lw=0.8)
+    axes[0].set_xticks(radii)
+    axes[0].tick_params(labelsize=12)
+    axes[0].set_xlabel("Buffer distance (km)", fontsize=12)
+    axes[0].set_ylabel("Change in absolute error (kg m$^{-2}$)", fontsize=12)
+    axes[0].set_title("(a)", loc="left", fontsize=13)
+    axes[1].bar([str(int(radius)) for radius in radii], removed, color="#4d4d4d", width=0.7)
+    axes[1].tick_params(labelsize=12)
+    axes[1].set_xlabel("Buffer distance (km)", fontsize=12)
+    axes[1].set_ylabel("Mean training profiles removed", fontsize=12)
+    axes[1].set_title("(b)", loc="left", fontsize=13)
     fig.tight_layout()
     FIGURES.mkdir(parents=True, exist_ok=True)
     fig.savefig(FIGURES / "fig22_buffer_forest.png", dpi=300)

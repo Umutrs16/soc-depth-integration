@@ -1,0 +1,121 @@
+{
+  "experiment": "common-cohort paired comparison of retrospective layer omissions",
+  "not_an_active_sampling_trial": true,
+  "same_retained_count": true,
+  "scored_layers_can_still_differ": true,
+  "seed": 41,
+  "draws": 2000,
+  "cohorts": {
+    "k3": {
+      "n_profiles": 2506,
+      "fixed_scored_layers": 3549,
+      "gap_scored_layers": 4483,
+      "fixed_median_thickness_cm": 17.0,
+      "gap_median_thickness_cm": 20.0,
+      "fixed_spline": {
+        "mean": 0.6996851645435717,
+        "ci95_low": 0.6625171586440406,
+        "ci95_high": 0.7368823307052208,
+        "n_profiles": 2506
+      },
+      "gap_spline": {
+        "mean": 0.7331961925591438,
+        "ci95_low": 0.6958867371810045,
+        "ci95_high": 0.7721920217751762,
+        "n_profiles": 2506
+      },
+      "fixed_linear_minus_spline": {
+        "mean": 0.008049654820254258,
+        "ci95_low": -0.001307956302027361,
+        "ci95_high": 0.01632457530870609,
+        "n_profiles": 2506
+      },
+      "gap_linear_minus_spline": {
+        "mean": 0.008154397162443358,
+        "ci95_low": -0.0015820852100442958,
+        "ci95_high": 0.01563086528796063,
+        "n_profiles": 2506
+      },
+      "gap_minus_fixed_spline": {
+        "mean": 0.03351102801557212,
+        "ci95_low": 0.014106335198665509,
+        "ci95_high": 0.053269249092554045,
+        "n_profiles": 2506
+      }
+    },
+    "k5": {
+      "n_profiles": 241,
+      "fixed_scored_layers": 263,
+      "gap_scored_layers": 313,
+      "fixed_median_thickness_cm": 10.0,
+      "gap_median_thickness_cm": 10.0,
+      "fixed_spline": {
+        "mean": 0.40924775363530264,
+        "ci95_low": 0.3480576346517083,
+        "ci95_high": 0.4796366138758533,
+        "n_profiles": 241
+      },
+      "gap_spline": {
+        "mean": 0.4391715928960755,
+        "ci95_low": 0.37036260072281263,
+        "ci95_high": 0.5190538068352051,
+        "n_profiles": 241
+      },
+      "fixed_linear_minus_spline": {
+        "mean": 0.0004497811929129235,
+        "ci95_low": -0.008229698360240293,
+        "ci95_high": 0.009616433765988695,
+        "n_profiles": 241
+      },
+      "gap_linear_minus_spline": {
+        "mean": 0.0008181569832533395,
+        "ci95_low": -0.0072968731661449205,
+        "ci95_high": 0.008924203912747411,
+        "n_profiles": 241
+      },
+      "gap_minus_fixed_spline": {
+        "mean": 0.029923839260772835,
+        "ci95_low": -0.006870891006669626,
+        "ci95_high": 0.07382617952557383,
+        "n_profiles": 241
+      }
+    },
+    "k7": {
+      "n_profiles": 7,
+      "fixed_scored_layers": 17,
+      "gap_scored_layers": 19,
+      "fixed_median_thickness_cm": 10.0,
+      "gap_median_thickness_cm": 10.0,
+      "fixed_spline": {
+        "mean": 0.07834564096916417,
+        "ci95_low": 0.042908514448901806,
+        "ci95_high": 0.12399845593081825,
+        "n_profiles": 7
+      },
+      "gap_spline": {
+        "mean": 0.08568615351688318,
+        "ci95_low": 0.04889576203116709,
+        "ci95_high": 0.13244108172463775,
+        "n_profiles": 7
+      },
+      "fixed_linear_minus_spline": {
+        "mean": 0.0002875159973260854,
+        "ci95_low": -0.0031956190642515752,
+        "ci95_high": 0.004166926464847389,
+        "n_profiles": 7
+      },
+      "gap_linear_minus_spline": {
+        "mean": -2.529658151647292e-05,
+        "ci95_low": -0.004359959335594596,
+        "ci95_high": 0.004232932938335209,
+        "n_profiles": 7
+      },
+      "gap_minus_fixed_spline": {
+        "mean": 0.007340512547719026,
+        "ci95_low": -0.0034367674723494333,
+        "ci95_high": 0.018652706176073848,
+        "n_profiles": 7
+      }
+    }
+  }
+}
