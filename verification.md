@@ -17,7 +17,7 @@ python -m src.report_block_interval
 
 The planned comparison uses the archived random-forest predictions. `outputs/tables/round12_interval_profiles.csv` is a later calibration refit. Every row has `is_planned_contrast` set to false. Its random-forest column must not be used to recompute the paired difference.
 
-The equal-area hidden-layer comparison is a separate within-profile calculation. `outputs/metrics/round16_eaqss.json` stores its profile-mean errors. Refitting it requires the processed layer table, which is not in this archive. It does not replace the spatial-block scores, and it is not an adaptive sampling trial.
+The equal-area hidden-layer comparison is a separate within-profile calculation. `outputs/metrics/round16_eaqss.json` stores its profile-mean errors, the thickness groups, the density and relative errors, and the clip-at-zero sensitivity. The primary summary remains the unclipped spline at lambda 0.1. Refitting it requires the processed layer table, which is not in this archive. It does not replace the spatial-block scores, and it is not an adaptive sampling trial or a prospective sampling budget.
 
 ## B. Steps that need data outside this archive
 

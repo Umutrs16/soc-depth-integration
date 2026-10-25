@@ -10,6 +10,12 @@
   "failed_fits": 0,
   "not_a_spatial_score": true,
   "not_an_adaptive_sampling_trial": true,
+  "unit_checks": {
+    "layer_means_preserved": true,
+    "constant_rescaling_preserved": true,
+    "lambda_depends_on_depth_geometry_not_on_a_constant_unit_change": true,
+    "example_hidden_20_30_integral": 42.177998521066144
+  },
   "profile_macro_mae": {
     "eaqss_0.1": {
       "mean": 0.9829663989826661,
@@ -110,5 +116,161 @@
         "n_profiles": 3876
       }
     }
+  },
+  "additional_summaries": {
+    "primary_remains_unclipped_lambda_0.1": true,
+    "clip_at_zero_is_sensitivity_not_a_selected_model": true,
+    "density_mae_kg_m2_cm": {
+      "mean": 0.03623723180930427,
+      "ci95_low": 0.03464212728075673,
+      "ci95_high": 0.03790921556131171,
+      "n_profiles": 3906
+    },
+    "signed_bias_prediction_minus_observed": {
+      "mean": 0.4773650852489206,
+      "ci95_low": 0.43250649470011665,
+      "ci95_high": 0.5258841580068538,
+      "n_profiles": 3906
+    },
+    "relative_abs_where_observed_at_least_0.1": {
+      "mean": 0.5110403578299306,
+      "ci95_low": 0.48606931837997697,
+      "ci95_high": 0.5392101539912464,
+      "n_profiles": 3897,
+      "n_layers": 8934,
+      "layers_excluded_below_0.1": 44
+    },
+    "clipped_at_zero_mae": {
+      "mean": 0.9792129213127223,
+      "ci95_low": 0.9339861784249555,
+      "ci95_high": 1.0299546076908586,
+      "n_profiles": 3906
+    },
+    "midpoint_at_or_below_30_cm": {
+      "n_layers": 2740,
+      "mae_eaqss": {
+        "mean": 0.6759024943087699,
+        "ci95_low": 0.6362624323192018,
+        "ci95_high": 0.7165469501908618,
+        "n_profiles": 2481
+      }
+    },
+    "midpoint_below_is_deeper_than_30_cm": {
+      "n_layers": 6238,
+      "mae_eaqss": {
+        "mean": 1.0464498811647978,
+        "ci95_low": 0.9894706635171726,
+        "ci95_high": 1.1041792176244816,
+        "n_profiles": 3488
+      }
+    },
+    "layers_inside_0_30": {
+      "n_layers": 1515,
+      "n_profiles": 1410,
+      "mae_eaqss": {
+        "mean": 0.4999362134480963,
+        "ci95_low": 0.46229863290507056,
+        "ci95_high": 0.5394084418170731,
+        "n_profiles": 1410
+      },
+      "signed_bias": {
+        "mean": 0.17625623818125463,
+        "ci95_low": 0.1304864083151397,
+        "ci95_high": 0.22073070089609956,
+        "n_profiles": 1410
+      }
+    },
+    "thickness_quartiles": {
+      "2.0\u201316.0 cm": {
+        "n_layers": 2153,
+        "n_profiles": 1637,
+        "mae_eaqss": {
+          "mean": 0.47219031708779036,
+          "ci95_low": 0.4242279251349746,
+          "ci95_high": 0.5374683246428766,
+          "n_profiles": 1637
+        },
+        "mae_linear": {
+          "mean": 0.4791999172901465,
+          "ci95_low": 0.43265229577459036,
+          "ci95_high": 0.5482045460800342,
+          "n_profiles": 1637
+        },
+        "paired_linear_minus_eaqss": {
+          "mean": 0.007009600202356123,
+          "ci95_low": 0.002963706003948888,
+          "ci95_high": 0.01097527794447871,
+          "n_profiles": 1637
+        }
+      },
+      "16.0\u201323.0 cm": {
+        "n_layers": 2116,
+        "n_profiles": 1611,
+        "mae_eaqss": {
+          "mean": 0.7133461088616548,
+          "ci95_low": 0.666729312572628,
+          "ci95_high": 0.7633913440753097,
+          "n_profiles": 1611
+        },
+        "mae_linear": {
+          "mean": 0.7318932698454415,
+          "ci95_low": 0.6841878017132075,
+          "ci95_high": 0.7815961446120269,
+          "n_profiles": 1611
+        },
+        "paired_linear_minus_eaqss": {
+          "mean": 0.018547160983786753,
+          "ci95_low": 0.009826527294593367,
+          "ci95_high": 0.02789454021245948,
+          "n_profiles": 1611
+        }
+      },
+      "23.0\u201334.0 cm": {
+        "n_layers": 2393,
+        "n_profiles": 1860,
+        "mae_eaqss": {
+          "mean": 0.8750635455512978,
+          "ci95_low": 0.8243791949870503,
+          "ci95_high": 0.9275947962817107,
+          "n_profiles": 1860
+        },
+        "mae_linear": {
+          "mean": 0.8796442361169516,
+          "ci95_low": 0.8307470533059326,
+          "ci95_high": 0.9327329750993215,
+          "n_profiles": 1860
+        },
+        "paired_linear_minus_eaqss": {
+          "mean": 0.004580690565653782,
+          "ci95_low": -0.012051777667722257,
+          "ci95_high": 0.019367712791961072,
+          "n_profiles": 1860
+        }
+      },
+      "34.0\u2013140.0 cm": {
+        "n_layers": 2316,
+        "n_profiles": 1948,
+        "mae_eaqss": {
+          "mean": 1.432730818834278,
+          "ci95_low": 1.333000240498209,
+          "ci95_high": 1.5278326803464104,
+          "n_profiles": 1948
+        },
+        "mae_linear": {
+          "mean": 1.4904777196582257,
+          "ci95_low": 1.3977965587662193,
+          "ci95_high": 1.5944060951079757,
+          "n_profiles": 1948
+        },
+        "paired_linear_minus_eaqss": {
+          "mean": 0.05774690082394797,
+          "ci95_low": 0.039134580691849545,
+          "ci95_high": 0.07708388695627984,
+          "n_profiles": 1948
+        }
+      }
+    },
+    "one_hidden_layer_counts_as_one_recorded_assay": true,
+    "not_a_prospective_sampling_budget": true
   }
 }

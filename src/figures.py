@@ -499,8 +499,8 @@ def figure_xinjiang() -> None:
     ax_full.set_xlabel("0–100 cm target (kg m$^{-2}$)", fontsize=11)
     ax_full.set_ylabel("Predicted (kg m$^{-2}$)", fontsize=11)
     ax_full.set_title("(b)", fontsize=12, loc="left")
-    ax_full.tick_params(labelsize=8)
-    ax_full.legend(frameon=False, fontsize=7)
+    ax_full.tick_params(labelsize=9)
+    ax_full.legend(frameon=False, fontsize=10)
     peak = finite.loc[finite["y100"].idxmax()]
     ax_full.annotate(
         f"{peak['y100']:.1f}",
@@ -521,8 +521,8 @@ def figure_xinjiang() -> None:
     ax_zoom.set_xlabel("0–100 cm target (kg m$^{-2}$)", fontsize=11)
     ax_zoom.set_ylabel("Predicted (kg m$^{-2}$)", fontsize=11)
     ax_zoom.set_title("(c)", fontsize=12, loc="left")
-    ax_zoom.tick_params(labelsize=8)
-    ax_zoom.legend(frameon=False, fontsize=7)
+    ax_zoom.tick_params(labelsize=9)
+    ax_zoom.legend(frameon=False, fontsize=10)
     _save(fig, "fig08_xinjiang")
 
 

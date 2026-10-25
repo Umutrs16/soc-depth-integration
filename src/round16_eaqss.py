@@ -150,17 +150,35 @@ def _profile_bootstrap(values: np.ndarray, rng: np.random.Generator) -> dict:
     return {"mean": observed, "ci95_low": float(low), "ci95_high": float(high), "n_profiles": int(size)}
 
 
-def _example_check() -> None:
+def _example_check() -> dict:
     top = np.array([0.0, 20.0, 40.0, 60.0])
     bot = np.array([10.0, 30.0, 50.0, 70.0])
     value = np.array([6.0, 4.0, 3.0, 10.0])
     fit = _parameters(top, bot, value, PRIMARY_LAMBDA)
     if fit is None or not _preserves_layer_means(fit):
         raise RuntimeError("The equal-area spline did not preserve the example layer means.")
+    scaled = _parameters(top, bot, value * 0.05, PRIMARY_LAMBDA)
+    if scaled is None or np.max(np.abs(scaled["fitted_mean"] - fit["fitted_mean"] * 0.05)) > 1e-8:
+        raise RuntimeError("The smoothing matrix is not homogeneous in the layer values.")
+    hidden = 1
+    predicted = _predict_stock(top, bot, value, hidden, PRIMARY_LAMBDA)
+    if predicted is None or not np.isfinite(predicted):
+        raise RuntimeError("The gap integral did not return a finite stock.")
+    return {
+        "layer_means_preserved": True,
+        "constant_rescaling_preserved": True,
+        "lambda_depends_on_depth_geometry_not_on_a_constant_unit_change": True,
+        "example_hidden_20_30_integral": float(predicted),
+    }
+
+
+def _macro(frame: pd.DataFrame, column: str, rng: np.random.Generator) -> dict:
+    means = frame.groupby("profile_id", sort=False)[column].mean()
+    return _profile_bootstrap(means.to_numpy(float), rng)
 
 
 def run() -> dict:
-    _example_check()
+    checks = _example_check()
     layers = pd.read_parquet(PROCESSED / "layers_qc.parquet")
     layers["profile_id"] = layers["profile_id"].astype(str)
     usable = layers.loc[~layers["has_overlap"].astype(bool)].copy()
@@ -227,6 +245,7 @@ def run() -> dict:
         "failed_fits": int(failed),
         "not_a_spatial_score": True,
         "not_an_adaptive_sampling_trial": True,
+        "unit_checks": checks,
         "profile_macro_mae": {
             "eaqss_0.1": _profile_bootstrap(profile["mae_eaqss"].to_numpy(float), rng),
             "nearest_layer": _profile_bootstrap(profile["mae_nearest"].to_numpy(float), rng),
@@ -274,6 +293,60 @@ def run() -> dict:
             "linear_between_neighbours": _profile_bootstrap((inside_profile["abs_linear"] - inside_profile["abs_eaqss_0p1"]).to_numpy(float), rng),
         },
     }
+    detail["thickness_cm"] = detail["bottom_cm"] - detail["top_cm"]
+    detail["signed_eaqss"] = detail["eaqss_0p1"] - detail["observed_stock"]
+    detail["abs_density"] = detail["abs_eaqss_0p1"] / detail["thickness_cm"]
+    detail["clipped_stock"] = np.maximum(detail["eaqss_0p1"], 0.0)
+    detail["abs_clipped"] = (detail["clipped_stock"] - detail["observed_stock"]).abs()
+    relative = detail.loc[detail["observed_stock"] >= 0.1].copy()
+    relative["rel_abs"] = relative["abs_eaqss_0p1"] / relative["observed_stock"]
+    edges = np.quantile(detail["thickness_cm"], [0.0, 0.25, 0.5, 0.75, 1.0])
+    bands = {}
+    for left, right, last in zip(edges[:-1], edges[1:], [False, False, False, True]):
+        if last:
+            part = detail.loc[(detail["thickness_cm"] >= left) & (detail["thickness_cm"] <= right + 1e-9)]
+        else:
+            part = detail.loc[(detail["thickness_cm"] >= left) & (detail["thickness_cm"] < right)]
+        label = f"{left:.1f}–{right:.1f} cm"
+        bands[label] = {
+            "n_layers": int(len(part)),
+            "n_profiles": int(part["profile_id"].nunique()),
+            "mae_eaqss": _macro(part, "abs_eaqss_0p1", rng),
+            "mae_linear": _macro(part, "abs_linear", rng),
+            "paired_linear_minus_eaqss": _macro(part.assign(diff=part["abs_linear"] - part["abs_eaqss_0p1"]), "diff", rng),
+        }
+    shallow = detail.loc[0.5 * (detail["top_cm"] + detail["bottom_cm"]) <= 30]
+    deep = detail.loc[0.5 * (detail["top_cm"] + detail["bottom_cm"]) > 30]
+    inside30 = detail.loc[(detail["top_cm"] >= -1e-6) & (detail["bottom_cm"] <= 30 + 1e-6)]
+    summary["additional_summaries"] = {
+        "primary_remains_unclipped_lambda_0.1": True,
+        "clip_at_zero_is_sensitivity_not_a_selected_model": True,
+        "density_mae_kg_m2_cm": _macro(detail, "abs_density", rng),
+        "signed_bias_prediction_minus_observed": _macro(detail, "signed_eaqss", rng),
+        "relative_abs_where_observed_at_least_0.1": {
+            **_macro(relative, "rel_abs", rng),
+            "n_layers": int(len(relative)),
+            "layers_excluded_below_0.1": int((detail["observed_stock"] < 0.1).sum()),
+        },
+        "clipped_at_zero_mae": _macro(detail, "abs_clipped", rng),
+        "midpoint_at_or_below_30_cm": {
+            "n_layers": int(len(shallow)),
+            "mae_eaqss": _macro(shallow, "abs_eaqss_0p1", rng),
+        },
+        "midpoint_below_is_deeper_than_30_cm": {
+            "n_layers": int(len(deep)),
+            "mae_eaqss": _macro(deep, "abs_eaqss_0p1", rng),
+        },
+        "layers_inside_0_30": {
+            "n_layers": int(len(inside30)),
+            "n_profiles": int(inside30["profile_id"].nunique()),
+            "mae_eaqss": _macro(inside30, "abs_eaqss_0p1", rng) if len(inside30) else None,
+            "signed_bias": _macro(inside30, "signed_eaqss", rng) if len(inside30) else None,
+        },
+        "thickness_quartiles": bands,
+        "one_hidden_layer_counts_as_one_recorded_assay": True,
+        "not_a_prospective_sampling_budget": True,
+    }
     TABLES.mkdir(parents=True, exist_ok=True)
     METRICS.mkdir(parents=True, exist_ok=True)
     detail.to_csv(TABLES / "round16_eaqss_layers.csv", index=False)
@@ -284,14 +357,15 @@ def run() -> dict:
 
 
 def _figure(summary: dict) -> None:
-    labels = ["Equal-area spline", "Nearest layer", "Linear neighbours"]
-    keys = ["eaqss_0.1", "nearest_layer", "linear_between_neighbours"]
-    means = [summary["profile_macro_mae"][key]["mean"] for key in keys]
-    low = [summary["profile_macro_mae"][key]["ci95_low"] for key in keys]
-    high = [summary["profile_macro_mae"][key]["ci95_high"] for key in keys]
-    y = np.arange(len(labels))[::-1]
-    fig, ax = plt.subplots(figsize=(6.4, 3.2))
-    ax.errorbar(
+    fig, axes = plt.subplots(1, 2, figsize=(8.8, 3.6))
+    paired = summary["paired_other_minus_eaqss"]
+    labels = ["Nearest − spline", "Linear − spline"]
+    keys = ["nearest_layer", "linear_between_neighbours"]
+    means = [paired[key]["mean"] for key in keys]
+    low = [paired[key]["ci95_low"] for key in keys]
+    high = [paired[key]["ci95_high"] for key in keys]
+    y = np.array([1, 0])
+    axes[0].errorbar(
         means,
         y,
         xerr=[np.array(means) - np.array(low), np.array(high) - np.array(means)],
@@ -301,10 +375,32 @@ def _figure(summary: dict) -> None:
         capsize=3,
         ms=6,
     )
-    ax.set_yticks(y)
-    ax.set_yticklabels(labels, fontsize=11)
-    ax.set_xlabel("Profile-mean absolute error (kg m$^{-2}$)", fontsize=11)
-    ax.tick_params(labelsize=10)
+    axes[0].axvline(0, color="black", lw=0.8)
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels(labels, fontsize=11)
+    axes[0].set_xlabel("Paired absolute-error difference (kg m$^{-2}$)", fontsize=10)
+    axes[0].set_title("(a)", fontsize=12, loc="left")
+    bands = summary["additional_summaries"]["thickness_quartiles"]
+    names = list(bands)
+    xpos = np.arange(len(names))
+    spline = [bands[name]["mae_eaqss"]["mean"] for name in names]
+    linear = [bands[name]["mae_linear"]["mean"] for name in names]
+    spline_err = np.array([
+        [bands[name]["mae_eaqss"]["mean"] - bands[name]["mae_eaqss"]["ci95_low"] for name in names],
+        [bands[name]["mae_eaqss"]["ci95_high"] - bands[name]["mae_eaqss"]["mean"] for name in names],
+    ])
+    linear_err = np.array([
+        [bands[name]["mae_linear"]["mean"] - bands[name]["mae_linear"]["ci95_low"] for name in names],
+        [bands[name]["mae_linear"]["ci95_high"] - bands[name]["mae_linear"]["mean"] for name in names],
+    ])
+    axes[1].errorbar(xpos - 0.08, spline, yerr=spline_err, fmt="o", color="#2166ac", capsize=2, label="Equal-area spline")
+    axes[1].errorbar(xpos + 0.08, linear, yerr=linear_err, fmt="s", color="#4d4d4d", capsize=2, label="Linear neighbours")
+    axes[1].set_xticks(xpos)
+    axes[1].set_xticklabels(names, fontsize=8, rotation=15, ha="right")
+    axes[1].set_ylabel("Profile-mean absolute error (kg m$^{-2}$)", fontsize=10)
+    axes[1].set_xlabel("Recorded layer thickness", fontsize=10)
+    axes[1].legend(frameon=False, fontsize=9)
+    axes[1].set_title("(b)", fontsize=12, loc="left")
     fig.tight_layout()
     FIGURES.mkdir(parents=True, exist_ok=True)
     fig.savefig(FIGURES / "fig19_eaqss_hidden.pdf", bbox_inches="tight")
